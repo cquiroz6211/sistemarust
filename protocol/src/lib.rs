@@ -1,1 +1,1 @@
-// Protocol crate - shared types and logic between PC app and Raspberry Pi controller
+// protocolo para comunicación entre PC y raspberry
