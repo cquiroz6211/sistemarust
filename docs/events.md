@@ -53,7 +53,6 @@ Estos mensajes son comandos. El PC pide algo; la Raspberry decide si lo acepta.
 
 | Comando | Propósito | Respuesta esperada |
 |---|---|---|
-| RegisterOven | Registrar un horno con su configuración inicial. | CommandAccepted o CommandRejected |
 | SetTargetTemperature | Cambiar la temperatura deseada de un horno. | CommandAccepted o CommandRejected |
 | SetOvenEnabled | Habilitar o deshabilitar lógicamente un horno. | CommandAccepted o CommandRejected |
 | RequestStatus | Pedir estado actual de uno o varios hornos. | OvenStatusUpdated |
@@ -65,33 +64,32 @@ Estos mensajes son eventos. La Raspberry informa algo que ya validó, ocurrió o
 
 | Evento | Propósito | Cuándo ocurre |
 |---|---|---|
+| OvenDetected | Informar que se detectó un horno nuevo. | Cuando la Raspberry descubre sensor y actuador nuevos. |
 | CommandAccepted | Confirmar que un comando fue aceptado. | Después de validar correctamente un comando. |
 | CommandRejected | Informar que un comando fue rechazado. | Cuando el comando no puede aplicarse. |
 | OvenStatusUpdated | Reportar estado actual de un horno. | Luego de cambios relevantes o ante RequestStatus. |
 | FaultRaised | Informar una falla técnica o de seguridad. | Cuando la Raspberry detecta una condición anormal. |
 
-## Definición conceptual de comandos
+## Definición conceptual de eventos
 
-### RegisterOven
+### OvenDetected
 
-Registra un horno en la Raspberry.
+La Raspberry informa que detectó un horno nuevo en el hardware.
 
 | Dato conceptual | Descripción |
 |---|---|
 | oven_id | Identificador del horno. |
-| sensor_ref | Referencia al sensor de temperatura. |
-| output_ref | Referencia al actuador, relay o salida de control. |
-| target_celsius | Temperatura objetivo inicial, si aplica. |
-| max_celsius | Límite técnico máximo permitido. |
-| enabled | Si el horno arranca habilitado o no. |
+| sensor_ref | Referencia al sensor de temperatura detectado. |
+| output_ref | Referencia al actuador, relay o salida de control detectada. |
+| max_celsius | Límite técnico máximo permitido según especificación del hardware. |
 
-Debe rechazarse si:
+Ocurre cuando:
 
-- El horno ya existe.
-- El sensor ya está asignado.
-- La salida ya está asignada.
-- La temperatura objetivo excede límites permitidos.
-- Falta información mínima para operar.
+- La Raspberry detecta un nuevo sensor de temperatura en el bus.
+- La Raspberry detecta una nueva salida de control disponible.
+- Se completa el emparejamiento lógico entre sensor y salida.
+
+## Definición conceptual de comandos
 
 ### SetTargetTemperature
 
@@ -225,12 +223,15 @@ Fallas iniciales posibles:
 
 ## Flujo mínimo esperado
 
-### Registrar horno
+### Detectar horno nuevo
 
-1. El PC envía RegisterOven.
-2. La Raspberry valida configuración.
-3. La Raspberry responde CommandAccepted o CommandRejected.
-4. Si fue aceptado, la Raspberry puede emitir OvenStatusUpdated.
+1. La Raspberry detecta un nuevo sensor y actuador en el hardware.
+2. La Raspberry emite OvenDetected al PC.
+3. El PC muestra el horno en la interfaz.
+4. El operador configura la temperatura deseada con SetTargetTemperature.
+5. El operador habilita el horno con SetOvenEnabled.
+6. La Raspberry responde CommandAccepted a cada comando.
+7. La Raspberry emite OvenStatusUpdated con el estado actual.
 
 ### Cambiar temperatura
 
@@ -258,6 +259,7 @@ Fallas iniciales posibles:
 | Heartbeat | Puede agregarse luego si la salud de conexión entra en el primer hito. |
 | RemoveOven | No es vital para el primer flujo de control. |
 | Historial avanzado | Pertenece a una etapa posterior. |
+| RegisterOven (comando) | La Raspberry detecta hornos, no la PC. Reemplazado por OvenDetected. |
 
 ## Criterios de aceptación del protocolo inicial
 

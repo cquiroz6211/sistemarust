@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "bevy-ecs-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/bevy-ecs-expert/SKILL.md",
+      "computedHash": "acf9490b1108c5277a832d86ea6da94aeba28891afe60c414137f81d74919528"
+    }
+  }
+}

@@ -66,7 +66,6 @@ El PC declara intención. La Raspberry valida, ejecuta y reporta hechos.
 
 | Evento | Propósito |
 |---|---|
-| RegisterOven | Registrar un horno con su configuración inicial. |
 | SetTargetTemperature | Cambiar la temperatura deseada de un horno. |
 | SetOvenEnabled | Habilitar o deshabilitar lógicamente un horno. |
 | RequestStatus | Pedir el estado actual de uno o varios hornos. |
@@ -76,6 +75,7 @@ El PC declara intención. La Raspberry valida, ejecuta y reporta hechos.
 
 | Evento | Propósito |
 |---|---|
+| OvenDetected | Informar que se detectó un horno nuevo en el hardware. |
 | CommandAccepted | Confirmar que un comando fue recibido, validado y aceptado. |
 | CommandRejected | Informar que un comando fue rechazado y por qué. |
 | OvenStatusUpdated | Reportar el estado operativo de un horno. |

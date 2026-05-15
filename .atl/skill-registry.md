@@ -6,6 +6,7 @@ Last updated: 2026-05-14
 
 ## Sources scanned
 
+- .agents\skills
 - C:\Users\Administrador\.pi\agent\skills
 - C:\Users\Administrador\.config\agents\skills
 - C:\Users\Administrador\.agents\skills
@@ -48,6 +49,11 @@ Subagents still read their assigned executor/phase skill. During normal runtime,
   - Deleting an existing `AGENTS.md` always requires human approval.
   - Contradictions between code, AGENTS, README, and docs require human resolution.
   - If evidence is weak, stop and ask. Do not write a low-confidence `AGENTS.md`.
+
+### bevy-ecs-expert
+- Path: C:\Users\Administrador\Desktop\uco\sistemarust\.agents\skills\bevy-ecs-expert\SKILL.md
+- Rules:
+  - No compact rules declared; delegators should load the full skill file before direct work, or pass an explicit fallback path only when Project Standards cannot be injected.
 
 ### branch-pr
 - Path: C:\Users\Administrador\.agents\skills\branch-pr\SKILL.md
