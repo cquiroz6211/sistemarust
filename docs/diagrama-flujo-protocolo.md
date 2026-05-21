@@ -6,6 +6,44 @@ Este documento muestra cómo se ve el protocolo en acción. PC y Raspberry Pi se
 
 ---
 
+## Diagrama General de Secuencia
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant PC as PC / Bevy
+    participant RPi as Raspberry Pi
+
+    Note over PC,RPi: 1. La Raspberry detecta un horno nuevo
+    RPi-->>PC: OvenDetected { oven_id, sensor_ref, output_ref, max_celsius }
+    PC->>RPi: SetTargetTemperature { oven_id, target_celsius: 150.0 }
+    RPi-->>PC: CommandAccepted { accepted_type: SetTargetTemperature, oven_id, message }
+    PC->>RPi: SetOvenEnabled { oven_id, enabled: true }
+    RPi-->>PC: CommandAccepted { accepted_type: SetOvenEnabled, oven_id, message }
+    RPi-->>PC: OvenStatusUpdated { oven_id, current_celsius, target_celsius, enabled, heating, state: "idle" }
+
+    Note over PC,RPi: 2. Cambiar temperatura deseada
+    PC->>RPi: SetTargetTemperature { oven_id, target_celsius: 180.0 }
+    RPi-->>PC: CommandAccepted { accepted_type: SetTargetTemperature, oven_id, message }
+    RPi-->>PC: OvenStatusUpdated { oven_id, target_celsius: 180.0, state: "heating" }
+
+    Note over PC,RPi: 3. Solicitar estado (sincronización)
+    PC->>RPi: RequestStatus { oven_id, scope: "all" }
+    RPi-->>PC: OvenStatusUpdated { ... }
+
+    Note over PC,RPi: 4. Comando inválido (rechazo)
+    PC->>RPi: SetTargetTemperature { oven_id: "Horno-99", target_celsius: 500.0 }
+    RPi-->>PC: CommandRejected { rejected_type: SetTargetTemperature, oven_id: "Horno-99", reason: "oven_not_found", message }
+
+    Note over PC,RPi: 5. Parada de emergencia
+    PC->>RPi: EmergencyStop { reason: "Sobrecalentamiento detectado por operador" }
+    RPi-->>PC: CommandAccepted { accepted_type: EmergencyStop, message }
+    RPi-->>PC: OvenStatusUpdated { oven_id: "Horno-01", state: "emergency_stopped", enabled: false, heating: false }
+
+    Note over PC,RPi: 6. Falla técnica detectada por Raspberry
+    RPi-->>PC: FaultRaised { oven_id: "Horno-01", fault_code: "sensor_unavailable", severity: "high", message: "Sensor TEMP_A1 no responde" }
+    RPi-->>PC: OvenStatusUpdated { oven_id: "Horno-01", state: "faulted" }
+```
 
 ---
 
