@@ -3,6 +3,7 @@ members = [
     "protocol",
     "pc-app",
     "rpi-controller",
+    "transport",
 ]
 resolver = "3"
 

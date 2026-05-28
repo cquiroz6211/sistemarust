@@ -83,6 +83,7 @@ Cada crate tiene sus colas internas. No hay conexión entre procesos:
 | Bevy headless para Raspberry | `docs/prd-rpi-controller-bevy-headless.md` | `MinimalPlugins` + `ScheduleRunnerPlugin`, sin renderer, sin Tokio |
 | Histéresis de 5°C | `docs/adr/002-hysteresis-control-termico.md` | Banda muerta para proteger relay, PID diferido |
 | PC como read model | `openspec/changes/pc-app/proposal.md` | PC no crea hornos ni decide; recibe y muestra |
+| Tokio como adaptador de transporte | `docs/adr/003-tokio-como-adaptador-transporte-bevy.md` | Bevy mantiene el dominio; Tokio mueve TCP sin bloquear schedules |
 | Transporte diferido | `docs/estado-actual.md` | Queues internas listas, conexión entre procesos pendiente |
 
 ## Documentación existente
@@ -97,6 +98,7 @@ Cada crate tiene sus colas internas. No hay conexión entre procesos:
 | `docs/diagrama-clases.md` | Diagrama de componentes reales | ✅ Actualizado |
 | `docs/adr/001-protocolo-eventos-rust-enum.md` | ADR: enum + serde | ✅ Sí |
 | `docs/adr/002-hysteresis-control-termico.md` | ADR: histéresis 5°C | ✅ Sí |
+| `docs/adr/003-tokio-como-adaptador-transporte-bevy.md` | ADR: Tokio como adaptador TCP de Bevy | ✅ Sí |
 | `docs/estado-actual.md` | Este documento — trazabilidad | ✅ Creado |
 
 ## Cómo probar cada lado
