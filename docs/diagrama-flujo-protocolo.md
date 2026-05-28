@@ -151,31 +151,52 @@ sequenceDiagram
 
 ---
 
----
-
 ## Estado actual: arquitectura implementada (Mayo 2026)
 
-Este documento describe el **protocolo ideal** entre PC y Raspberry. El **estado real de implementación** es parcial:
+Este documento describe el protocolo entre PC y Raspberry. El flujo principal ya está implementado y verificado en dos procesos locales conectados por TCP localhost.
 
 | Capa | Estado | Detalle |
 |---|---|---|
-| Protocolo (`Message` enum + `EventEnvelope`) | ✅ Completado | Tipado, serde, 85 tests |
-| `rpi-controller` (Bevy ECS headless) | ✅ Completado | Procesa comandos, simula temperatura, emite eventos |
-| `pc-app` (Bevy ECS headless) | ✅ Completado | Read model, authoring de comandos, 23 tests |
-| **Transporte PC ↔ Raspberry** | ❌ Pendiente | No hay serial ni TCP conectando ambos procesos |
+| Protocolo (`Message` enum + `EventEnvelope`) | ✅ Verificado | Tipado, serde, 93 tests |
+| `transport` | ✅ Verificado | TCP localhost, JSON line framing, canales acotados, logs `[TX]`/`[RX]`, 14 tests |
+| `rpi-controller` (Bevy ECS headless) | ✅ Verificado | Procesa comandos, simula temperatura, emite eventos, 38 tests |
+| `pc-app` (Bevy ECS headless) | ✅ Verificado | Read model, authoring de comandos, 23 tests |
+| **Transporte PC ↔ Raspberry** | ✅ Verificado | RPi escucha, PC conecta, ambos intercambian `EventEnvelope` por TCP |
+
+### Demo verificada
+
+```bash
+# Terminal 1: Raspberry simulada
+cargo run --package rpi-controller -- --simulate 2 --listen 127.0.0.1:7000
+
+# Terminal 2: PC con demo automática
+cargo run --package pc-app -- --connect 127.0.0.1:7000 --demo
+```
+
+### Flujo real de la demo
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant RPi as rpi-controller<br/>Servidor TCP
+    participant TCP as TCP localhost<br/>127.0.0.1:7000
+    participant PC as pc-app<br/>Cliente TCP demo
+
+    RPi->>RPi: Arranca con --simulate 2 --listen
+    RPi->>TCP: Escucha conexión TCP
+    PC->>TCP: Conecta con --connect + --demo
+    RPi-->>PC: OvenDetected { oven_id, sensor_ref, output_ref, max_celsius }
+    PC->>RPi: SetTargetTemperature { oven_id, target_celsius }
+    RPi-->>PC: CommandAccepted { accepted_type: SetTargetTemperature, oven_id }
+    PC->>RPi: RequestStatus { scope }
+    RPi-->>PC: OvenStatusUpdated { oven_id, current_celsius, target_celsius, enabled, heating, state }
+```
 
 ### Consecuencia
 
-Hoy los dos procesos existen, pero no se comunican. Cada uno tiene sus colas internas:
+La arquitectura distribuida ya está viva en local. Lo que todavía no existe es la UI visual ni el GPIO real: la demo usa PC headless y hornos simulados.
 
-```
-pc-app ─── OutboundProtocolQueue ──?── InboundProtocolQueue ─── rpi-controller
-rpi-controller ─── OutboundProtocolQueue ──?── InboundProtocolQueue ─── pc-app
-```
-
-El transporte (`?`) es el próximo cambio planificado.
-
-### Cómo probar cada lado hoy
+### Cómo probar cada lado sin transporte
 
 **rpi-controller** (simula hornos y responde comandos):
 ```bash
@@ -187,9 +208,9 @@ cargo run --package rpi-controller -- --simulate 3
 cargo run --package pc-app
 ```
 
-Para probar el flujo completo sin transporte, se usan los tests de integración de cada crate:
+Para revisar toda la base verificada:
 ```bash
-cargo test --workspace   # 154 tests total
+cargo test --workspace   # 168 tests total
 ```
 
 ## Referencias
@@ -199,6 +220,8 @@ cargo test --workspace   # 154 tests total
 - `docs/adr/001-protocolo-eventos-rust-enum.md`
 - `docs/adr/002-hysteresis-control-termico.md`
 - `docs/estado-actual.md`
+- `docs/flujo-datos-transporte.md`
 - `openspec/changes/protocol/specs/protocol-message-serialization/spec.md`
 - `openspec/changes/pc-app/verify-report.md`
+- `openspec/changes/pc-rpi-transport-link/verify-report.md`
 - `openspec/changes/archive/2026-05-21-rpi-controller-bevy-headless/archive-report.md`

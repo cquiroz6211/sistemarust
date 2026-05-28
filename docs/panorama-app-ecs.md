@@ -230,21 +230,21 @@ Cada sistema debe tener una responsabilidad clara.
 |---|---|---|
 | 1. Documentación de arquitectura y eventos | ✅ Completado | `docs/events.md`, ADRs, panorama |
 | 2. Workspace Rust mínimo | ✅ Completado | Skeleton inicial |
-| 3. Módulo compartido de protocolo | ✅ Completado | `protocol` — 85 tests |
+| 3. Módulo compartido de protocolo | ✅ Verificado | `protocol` — 93 tests |
 | 4. Serialización y lectura de eventos | ✅ Completado | Serde roundtrip, discriminante JSON |
-| 5. Raspberry headless con Bevy ECS + simulación | ✅ Completado | `rpi-controller-bevy-headless` — 59 tests |
-| 6. PC-app como read model + command author | ✅ Completado | `pc-app` — 23 tests |
+| 5. Raspberry headless con Bevy ECS + simulación | ✅ Verificado | `rpi-controller-bevy-headless` — 38 tests |
+| 6. PC-app como read model + command author | ✅ Verificado | `pc-app` — 23 tests |
 | 7. ECS en el controlador | ✅ Completado | Replace Tokio-first por Bevy ECS |
 | 8. Simulación de sensores y salidas | ✅ Completado | Drift térmico, histéresis 5°C, noise |
+| 9. Transporte PC ↔ Raspberry | ✅ Verificado | `pc-rpi-transport-link` — TCP localhost, 168 tests workspace |
 
 ### Lo pendiente
 
 | Paso | Prioridad | Próximo cambio |
 |---|---|---|
-| 9. Transporte PC ↔ Raspberry | 🔜 Próximo | `pc-rpi-transport-link` |
 | 10. UI Bevy en PC | Siguiente | `pc-app-ui` |
 | 11. Integración GPIO real | Futuro | Necesita transporte primero |
-| 12. Demo observable para estudiantes | En paralelo | Demo runner o logging mode |
+| 12. Demo observable para estudiantes | En paralelo | Documentar/capturar logs `[TX]`/`[RX]` |
 
 ## Primera victoria técnica
 
@@ -270,7 +270,7 @@ La primera victoria planteada originalmente era:
 > 4. Raspberry reporta el estado actualizado.
 > 5. PC muestra el cambio.
 
-**Esto todavía no es posible.** Cada lado funciona y se testea por separado, pero **falta el transporte** que conecte PC y Raspberry. Ese es el próximo cambio planeado (`pc-rpi-transport-link`).
+**Esto ya es posible en localhost.** El cambio `pc-rpi-transport-link` conectó PC y Raspberry mediante TCP local, con `rpi-controller` como servidor y `pc-app` como cliente. Sigue sin ser UI final ni GPIO real: todavía es una demo headless con hornos simulados.
 
 ## Criterios de aceptación de este panorama
 
@@ -289,6 +289,7 @@ La primera victoria planteada originalmente era:
 - `docs/events.md`: contrato completo de eventos.
 - `docs/diagrama-clases.md`: diagrama ECS actualizado con componentes reales.
 - `docs/diagrama-flujo-protocolo.md`: flujo del protocolo con estado de implementación.
+- `docs/flujo-datos-transporte.md`: explicación del flujo TCP para estudiantes.
 - `docs/adr/001-protocolo-eventos-rust-enum.md`: decisión de usar Enum con serde.
 - `docs/adr/002-hysteresis-control-termico.md`: decisión de histéresis 5°C.
 - `docs/estado-actual.md`: trazabilidad consolidada del proyecto.
