@@ -26,36 +26,36 @@ Chain strategy: pending
 
 ## Phase 1: Foundation — Types, Modules, Resources
 
-- [ ] 1.1 Clean `pc-app/Cargo.toml`: remove `serialport` and `tokio` from v1 dependencies (keep `protocol` and `bevy`)
-- [ ] 1.2 Create `pc-app/src/components.rs`: define all 11 ECS components (`OvenId`, `SensorRef`, `OutputRef`, `CurrentTemperature`, `TargetTemperature`, `MaxTemperature`, `Enabled`, `Heating`, `OvenStatus`, `FaultState`, `LastCommandResult`) + `FaultInfo` struct + `CommandResult` enum with `#[derive(Component)]`
-- [ ] 1.3 Create `pc-app/src/resources.rs`: define `InboundProtocolQueue`, `OutboundProtocolQueue`, `OvenIndex(HashMap<String, Entity>)`, `GlobalFault` with `#[derive(Resource)]`
-- [ ] 1.4 Create `pc-app/src/events.rs`: define 5 internal event types (`OvenDiscovered`, `OvenStatusReceived`, `FaultReceived`, `CommandAcceptedReceived`, `CommandRejectedReceived`) with `#[derive(Event)]`
-- [ ] 1.5 Create `pc-app/src/systems/mod.rs`: module re-export for `ingest`, `state`, `commands`
-- [ ] 1.6 Create `pc-app/src/plugins/mod.rs`: module re-export for `pc_app`
+- [x] 1.1 Clean `pc-app/Cargo.toml`: remove `serialport` and `tokio` from v1 dependencies (keep `protocol` and `bevy`)
+- [x] 1.2 Create `pc-app/src/components.rs`: define all 11 ECS components (`OvenId`, `SensorRef`, `OutputRef`, `CurrentTemperature`, `TargetTemperature`, `MaxTemperature`, `Enabled`, `Heating`, `OvenStatus`, `FaultState`, `LastCommandResult`) + `FaultInfo` struct + `CommandResult` enum with `#[derive(Component)]`
+- [x] 1.3 Create `pc-app/src/resources.rs`: define `InboundProtocolQueue`, `OutboundProtocolQueue`, `OvenIndex(HashMap<String, Entity>)`, `GlobalFault` with `#[derive(Resource)]`
+- [x] 1.4 Create `pc-app/src/events.rs`: define 5 internal event types (`OvenDiscovered`, `OvenStatusReceived`, `FaultReceived`, `CommandAcceptedReceived`, `CommandRejectedReceived`) with `#[derive(Event)]`
+- [x] 1.5 Create `pc-app/src/systems/mod.rs`: module re-export for `ingest`, `state`, `commands`
+- [x] 1.6 Create `pc-app/src/plugins/mod.rs`: module re-export for `pc_app`
 
 ## Phase 2: Core — Plugin, Systems, Bootstrap
 
-- [ ] 2.1 Create `pc-app/src/systems/ingest.rs`: `ingest_inbound_protocol` system — drains `InboundProtocolQueue`, deserializes each `EventEnvelope`, emits correct internal event variant, silently drops malformed JSON and unknown message types, ignores command variants in inbound queue
-- [ ] 2.2 Create `pc-app/src/systems/state.rs`: implement 4 systems — `apply_oven_detected` (spawn/update entity via `OvenIndex`), `apply_oven_status_updated` (mutate components, ignore unknown ovens), `apply_fault_raised` (set `FaultState`, persist across status updates, handle `oven_id: None` as `GlobalFault`), `record_command_result` (store `LastCommandResult` per oven)
-- [ ] 2.3 Create `pc-app/src/systems/commands.rs`: implement 4 authoring systems — `author_set_target_temperature_command`, `author_set_oven_enabled_command`, `author_request_status_command` (Single + All scope), `author_emergency_stop_command` — each constructs `EventEnvelope` with correct `Message` variant and pushes to `OutboundProtocolQueue`
-- [ ] 2.4 Create `pc-app/src/plugins/pc_app.rs`: `PcAppPlugin` — registers all 5 event types, 4 resources, 8 systems in correct schedule order (`Update` for ingest + commands, `FixedUpdate` for state mutation)
-- [ ] 2.5 Modify `pc-app/src/main.rs`: replace stub with Bevy app bootstrap — `MinimalPlugins` + `ScheduleRunnerPlugin::run_loop(50ms)` + `PcAppPlugin`
+- [x] 2.1 Create `pc-app/src/systems/ingest.rs`: `ingest_inbound_protocol` system — drains `InboundProtocolQueue`, deserializes each `EventEnvelope`, emits correct internal event variant, silently drops malformed JSON and unknown message types, ignores command variants in inbound queue
+- [x] 2.2 Create `pc-app/src/systems/state.rs`: implement 4 systems — `apply_oven_detected` (spawn/update entity via `OvenIndex`), `apply_oven_status_updated` (mutate components, ignore unknown ovens), `apply_fault_raised` (set `FaultState`, persist across status updates, handle `oven_id: None` as `GlobalFault`), `record_command_result` (store `LastCommandResult` per oven)
+- [x] 2.3 Create `pc-app/src/systems/commands.rs`: implement 4 authoring systems — `author_set_target_temperature_command`, `author_set_oven_enabled_command`, `author_request_status_command` (Single + All scope), `author_emergency_stop_command` — each constructs `EventEnvelope` with correct `Message` variant and pushes to `OutboundProtocolQueue`
+- [x] 2.4 Create `pc-app/src/plugins/pc_app.rs`: `PcAppPlugin` — registers all 5 event types, 4 resources, 8 systems in correct schedule order (`Update` for ingest + commands, `FixedUpdate` for state mutation)
+- [x] 2.5 Modify `pc-app/src/main.rs`: replace stub with Bevy app bootstrap — `MinimalPlugins` + `ScheduleRunnerPlugin::run_loop(50ms)` + `PcAppPlugin`
 
 ## Phase 3: Testing — Spec Scenario Coverage
 
-- [ ] 3.1 Write tests for `ingest_inbound_protocol`: queue drained on tick, empty queue no-op, malformed JSON discarded, unknown message variant dropped, command variant in inbound ignored
-- [ ] 3.2 Write tests for `apply_oven_detected`: first detection spawns entity with correct components, redetection updates MaxTemperature without duplicate, entity exists in `OvenIndex`
-- [ ] 3.3 Write tests for `apply_oven_status_updated`: known oven gets updated components, unknown oven silently ignored, fault state survives status update
-- [ ] 3.4 Write tests for `apply_fault_raised`: fault recorded on entity, global fault (`oven_id: None`) stored in `GlobalFault` resource without touching oven entities
-- [ ] 3.5 Write tests for `record_command_result`: accepted command stores `accepted_type` + `message`, rejected command stores `rejected_type` + `reason` + `message`
-- [ ] 3.6 Write tests for command authoring: `SetTargetTemperature` envelope correct, `SetOvenEnabled` envelope correct (both true/false), `RequestStatus` envelope for Single and All scope, `EmergencyStop` envelope with reason
-- [ ] 3.7 Write integration test: full inbound flow (envelope → queue → entity state), full outbound flow (command intent → envelope in outbound queue)
+- [x] 3.1 Write tests for `ingest_inbound_protocol`: queue drained on tick, empty queue no-op, malformed JSON discarded, unknown message variant dropped, command variant in inbound ignored
+- [x] 3.2 Write tests for `apply_oven_detected`: first detection spawns entity with correct components, redetection updates MaxTemperature without duplicate, entity exists in `OvenIndex`
+- [x] 3.3 Write tests for `apply_oven_status_updated`: known oven gets updated components, unknown oven silently ignored, fault state survives status update
+- [x] 3.4 Write tests for `apply_fault_raised`: fault recorded on entity, global fault (`oven_id: None`) stored in `GlobalFault` resource without touching oven entities
+- [x] 3.5 Write tests for `record_command_result`: accepted command stores `accepted_type` + `message`, rejected command stores `rejected_type` + `reason` + `message`
+- [x] 3.6 Write tests for command authoring: `SetTargetTemperature` envelope correct, `SetOvenEnabled` envelope correct (both true/false), `RequestStatus` envelope for Single and All scope, `EmergencyStop` envelope with reason
+- [x] 3.7 Write integration test: full inbound flow (envelope → queue → entity state), full outbound flow (command intent → envelope in outbound queue)
 
 ## Phase 4: Cleanup & Verification
 
-- [ ] 4.1 Verify `cargo build --package pc-app` succeeds with zero warnings
-- [ ] 4.2 Verify `cargo test --package pc-app` passes all tests
-- [ ] 4.3 Confirm no UI code, no real transport code, no `serialport` or `tokio` usage in v1
+- [x] 4.1 Verify `cargo build --package pc-app` succeeds with zero warnings
+- [x] 4.2 Verify `cargo test --package pc-app` passes all tests
+- [x] 4.3 Confirm no UI code, no real transport code, no `serialport` or `tokio` usage in v1
 
 ## Dependency Graph
 

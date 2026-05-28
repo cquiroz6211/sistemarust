@@ -151,9 +151,54 @@ sequenceDiagram
 
 ---
 
+---
+
+## Estado actual: arquitectura implementada (Mayo 2026)
+
+Este documento describe el **protocolo ideal** entre PC y Raspberry. El **estado real de implementación** es parcial:
+
+| Capa | Estado | Detalle |
+|---|---|---|
+| Protocolo (`Message` enum + `EventEnvelope`) | ✅ Completado | Tipado, serde, 85 tests |
+| `rpi-controller` (Bevy ECS headless) | ✅ Completado | Procesa comandos, simula temperatura, emite eventos |
+| `pc-app` (Bevy ECS headless) | ✅ Completado | Read model, authoring de comandos, 23 tests |
+| **Transporte PC ↔ Raspberry** | ❌ Pendiente | No hay serial ni TCP conectando ambos procesos |
+
+### Consecuencia
+
+Hoy los dos procesos existen, pero no se comunican. Cada uno tiene sus colas internas:
+
+```
+pc-app ─── OutboundProtocolQueue ──?── InboundProtocolQueue ─── rpi-controller
+rpi-controller ─── OutboundProtocolQueue ──?── InboundProtocolQueue ─── pc-app
+```
+
+El transporte (`?`) es el próximo cambio planificado.
+
+### Cómo probar cada lado hoy
+
+**rpi-controller** (simula hornos y responde comandos):
+```bash
+cargo run --package rpi-controller -- --simulate 3
+```
+
+**pc-app** (procesa eventos y autoriza comandos en vacío):
+```bash
+cargo run --package pc-app
+```
+
+Para probar el flujo completo sin transporte, se usan los tests de integración de cada crate:
+```bash
+cargo test --workspace   # 154 tests total
+```
+
 ## Referencias
 
 - `docs/prd-sistema-control-hornos.md`
 - `docs/events.md`
 - `docs/adr/001-protocolo-eventos-rust-enum.md`
+- `docs/adr/002-hysteresis-control-termico.md`
+- `docs/estado-actual.md`
 - `openspec/changes/protocol/specs/protocol-message-serialization/spec.md`
+- `openspec/changes/pc-app/verify-report.md`
+- `openspec/changes/archive/2026-05-21-rpi-controller-bevy-headless/archive-report.md`

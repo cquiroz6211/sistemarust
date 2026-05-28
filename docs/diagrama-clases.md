@@ -1,4 +1,7 @@
-# Diagrama de Clases — Sistema de Control de Hornos (ECS)
+# Diagrama de Componentes — Sistema de Control de Hornos (ECS Real)
+
+> **Actualizado**: 2026-05-28
+> Refleja la arquitectura implementada después de los cambios `protocol`, `rpi-controller-bevy-headless` y `pc-app`.
 
 ## Diagrama UML (Mermaid)
 
@@ -6,268 +9,321 @@
 classDiagram
 
     %% ============================================================
-    %% ENTIDADES (estereotipo <<Entity>>)
+    %% PROTOCOLO (crate compartido)
     %% ============================================================
 
-    class Entity {
-        <<Bevy - interno>>
-        +id: u64
-        +generation: u32
-        NOTA: "Una entidad es SOLO un ID. No tiene datos ni comportamiento."
+    class EventEnvelope {
+        <<Protocol>>
+        +event_id: Uuid
+        +source: String
+        +target: String
+        +timestamp: DateTime~Utc~
+        +correlation_id: Option~Uuid~
+        +version: String
+        +payload: Message
+        +new(source, target, payload) EventEnvelope
     }
 
+    class Message {
+        <<Protocol>>
+        <<serde(tag, content)>>
+        SetTargetTemperature
+        SetOvenEnabled
+        RequestStatus
+        EmergencyStop
+        OvenDetected
+        CommandAccepted
+        CommandRejected
+        OvenStatusUpdated
+        FaultRaised
+    }
+
+    Message --> SetTargetTemperaturePayload
+    Message --> SetOvenEnabledPayload
+    Message --> RequestStatusPayload
+    Message --> EmergencyStopPayload
+    Message --> OvenDetectedPayload
+    Message --> CommandAcceptedPayload
+    Message --> CommandRejectedPayload
+    Message --> OvenStatusUpdatedPayload
+    Message --> FaultRaisedPayload
+
+    class OvenState {
+        <<Protocol>>
+        disabled | idle | heating
+        faulted | emergency_stopped
+    }
+
+    class FaultCode {
+        <<Protocol>>
+        OvenNotFound | SensorUnavailable
+        InvalidTemperature | OutputUnavailable
+        SafetyLimitExceeded | EmergencyStopActive
+    }
+
+    class Severity {
+        <<Protocol>>
+        Low | Medium | High | Critical
+    }
+
+    EventEnvelope --> Message : payload
+
     %% ============================================================
-    %% COMPONENTS (estereotipo <<Component>>)
+    %% RPI-CONTROLLER (Bevy ECS headless)
     %% ============================================================
 
-    class Horno {
+    class RPI_Entity {
+        <<rpi-controller: Entity>>
+        NOTA: "Created by spawn_simulated_ovens (Startup)"
+    }
+
+    class RPI_OvenId {
         <<Component>>
-        +id: u8
-        +temp_actual: f32
-        +temp_deseada: f32
-        +pwm_actual: u8
-        +habilitado: bool
+        +oven_id: String
     }
 
-    class PIDState {
+    class RPI_SensorRef {
         <<Component>>
-        +kp: f32
-        +ki: f32
-        +kd: f32
-        +integral: f32
-        +error_previo: f32
+        +sensor_ref: String
     }
 
-    class HistorialTemperatura {
+    class RPI_OutputRef {
         <<Component>>
-        +muestras: VecDeque~f32~
-        +max_muestras: usize
+        +output_ref: String
     }
 
-    class Alarma {
+    class RPI_CurrentTemperature {
         <<Component>>
-        +temp_maxima: f32
-        +activa: bool
+        +celsius: f64
+    }
+
+    class RPI_TargetTemperature {
+        <<Component>>
+        +celsius: f64
+    }
+
+    class RPI_MaxTemperature {
+        <<Component>>
+        +celsius: f64
+    }
+
+    class RPI_Enabled {
+        <<Component>>
+        +enabled: bool
+    }
+
+    class RPI_Heating {
+        <<Component>>
+        +heating: bool
+    }
+
+    class RPI_OvenStatus {
+        <<Component>>
+        +state: OvenState
+    }
+
+    RPI_Entity "1" --> RPI_OvenId
+    RPI_Entity "1" --> RPI_SensorRef
+    RPI_Entity "1" --> RPI_OutputRef
+    RPI_Entity "1" --> RPI_CurrentTemperature
+    RPI_Entity "1" --> RPI_TargetTemperature
+    RPI_Entity "1" --> RPI_MaxTemperature
+    RPI_Entity "1" --> RPI_Enabled
+    RPI_Entity "1" --> RPI_Heating
+    RPI_Entity "1" --> RPI_OvenStatus
+
+    class RPI_Resources {
+        <<rpi-controller: Resource>>
+        InboundProtocolQueue
+        OutboundProtocolQueue
+        OvenIndex
+        SimulationConfig
+        ControllerConfig
+        TestRng
+        EmergencyStopActive
+        SimulateOvenCount
+        LastStatusPublishTime
+    }
+
+    class RPI_Systems {
+        <<rpi-controller: Schedule>>
+        Startup: spawn_simulated_ovens
+        Update: ingest_commands, emit_protocol_responses
+        FixedUpdate: simulate_thermal_drift, check_hysteresis, check_faults, publish_status
     }
 
     %% ============================================================
-    %% RESOURCES (estereotipo <<Resource>>)
+    %% PC-APP (Bevy ECS headless)
     %% ============================================================
 
-    class SerialConnection {
-        <<Resource>>
-        +port: SerialPort
-        +conectado: bool
+    class PC_Entity {
+        <<pc-app: Entity>>
+        NOTA: "Created by apply_oven_detected (Update)"
     }
 
-    class BufferSerial {
-        <<Resource>>
-        +tx: VecDeque~MensajeSaliente~
-        +rx: VecDeque~MensajeEntrante~
+    class PC_OvenId {
+        <<Component>>
+        +oven_id: String
     }
 
-    class ConfiguracionSistema {
-        <<Resource>>
-        +intervalo_lectura_ms: u64
-        +max_hornos: u8
-        +baud_rate: u32
+    class PC_SensorRef {
+        <<Component>>
+        +sensor_ref: String
     }
+
+    class PC_OutputRef {
+        <<Component>>
+        +output_ref: String
+    }
+
+    class PC_CurrentTemperature {
+        <<Component>>
+        +celsius: f64
+    }
+
+    class PC_TargetTemperature {
+        <<Component>>
+        +celsius: f64
+    }
+
+    class PC_MaxTemperature {
+        <<Component>>
+        +celsius: f64
+    }
+
+    class PC_Enabled {
+        <<Component>>
+        +enabled: bool
+    }
+
+    class PC_Heating {
+        <<Component>>
+        +heating: bool
+    }
+
+    class PC_OvenStatus {
+        <<Component>>
+        +state: OvenState
+    }
+
+    class PC_FaultState {
+        <<Component>>
+        +fault: Option~FaultInfo~
+    }
+
+    class PC_LastCommandResult {
+        <<Component>>
+        +result: Option~CommandResult~
+    }
+
+    PC_Entity "1" --> PC_OvenId
+    PC_Entity "1" --> PC_SensorRef
+    PC_Entity "1" --> PC_OutputRef
+    PC_Entity "1" --> PC_CurrentTemperature
+    PC_Entity "1" --> PC_TargetTemperature
+    PC_Entity "1" --> PC_MaxTemperature
+    PC_Entity "1" --> PC_Enabled
+    PC_Entity "1" --> PC_Heating
+    PC_Entity "1" --> PC_OvenStatus
+    PC_Entity "1" --> PC_FaultState
+    PC_Entity "1" --> PC_LastCommandResult
+
+    class PC_Resources {
+        <<pc-app: Resource>>
+        InboundProtocolQueue
+        OutboundProtocolQueue
+        OvenIndex
+        GlobalFault
+    }
+
+    class PC_Systems {
+        <<pc-app: Schedule>>
+        Update: ingest_inbound_protocol
+        FixedUpdate: apply_oven_detected, apply_oven_status_updated, apply_fault_raised, record_command_result
+    }
+
+    class PC_CommandFunctions {
+        <<pc-app: standalone>>
+        author_set_target_temperature_command
+        author_set_oven_enabled_command
+        author_request_status_command
+        author_emergency_stop_command
+    }
+
+    PC_CommandFunctions ..> PC_Resources : "push to OutboundProtocolQueue"
 
     %% ============================================================
-    %% EVENTS (estereotipo <<Event>>)
+    %% FLUJO DE DATOS
     %% ============================================================
 
-    class LecturaTemperatura {
-        <<Event>>
-        +horno_id: u8
-        +valor: f32
-    }
+    note for PC_Resources "InboundProtocolQueue ← (futuro transporte)\nOutboundProtocolQueue → (futuro transporte)"
 
-    class ComandoPWM {
-        <<Event>>
-        +horno_id: u8
-        +valor: u8
-    }
+    note for RPI_Resources "InboundProtocolQueue ← (futuro transporte)\nOutboundProtocolQueue → (futuro transporte)"
 
-    class HornoAgregado {
-        <<Event>>
-        +id: u8
-        +temp_deseada: f32
-    }
-
-    class HornoRemovido {
-        <<Event>>
-        +id: u8
-    }
-
-    %% ============================================================
-    %% SYSTEMS (estereotipo <<System>>)
-    %% ============================================================
-
-    class SerialReader {
-        <<System>>
-        +lee bytes del puerto serial
-        +parsea JSON
-        +push a BufferSerial.rx
-        --
-        Usa: SerialConnection, BufferSerial
-    }
-
-    class SensorUpdater {
-        <<System>>
-        +procesa mensajes entrantes
-        +actualiza temp_actual en Horno
-        +emite LecturaTemperatura
-        --
-        Usa: BufferSerial, Query~Horno~
-        Emite: LecturaTemperatura
-    }
-
-    class PIDController {
-        <<System>>
-        +calcula error (deseada - actual)
-        +actualiza integral (anti-windup)
-        +calcula derivativo
-        +aplica formula PID
-        +clamp resultado a 0-255
-        +actualiza pwm_actual en Horno
-        +emite ComandoPWM
-        --
-        Usa: Query~(Horno, PIDState)~, Time
-        Emite: ComandoPWM
-    }
-
-    class HistoryRecorder {
-        <<System>>
-        +escucha LecturaTemperatura
-        +agrega muestra al historial
-        +elimina muestras viejas (FIFO)
-        --
-        Escucha: LecturaTemperatura
-        Usa: Query~HistorialTemperatura~
-    }
-
-    class PWMSender {
-        <<System>>
-        +escucha ComandoPWM
-        +serializa JSON
-        +push a BufferSerial.tx
-        --
-        Escucha: ComandoPWM
-        Usa: BufferSerial
-    }
-
-    class SerialWriter {
-        <<System>>
-        +toma mensajes de BufferSerial.tx
-        +escribe al puerto serial
-        --
-        Usa: SerialConnection, BufferSerial
-    }
-
-    class HornoSpawner {
-        <<System>>
-        +escucha HornoAgregado
-        +crea nueva Entity
-        +attacha Components: Horno, PIDState, HistorialTemperatura
-        --
-        Escucha: HornoAgregado
-    }
-
-    class HornoDespawner {
-        <<System>>
-        +escucha HornoRemovido
-        +elimina Entity y sus Components
-        --
-        Escucha: HornoRemovido
-    }
-
-    class AlarmaSystem {
-        <<System>>
-        +escucha LecturaTemperatura
-        +verifica si temp > temp_maxima
-        +activa/desactiva alarma
-        --
-        Escucha: LecturaTemperatura
-        Usa: Query~(Horno, Alarma)~
-    }
-
-    %% ============================================================
-    %% PROTOCOLO (mensajes serial)
-    %% ============================================================
-
-    class MensajeEntrante {
-        <<Protocolo>>
-        +horno_id: u8
-        +tipo: TipoMensaje
-        +valor: f32
-    }
-
-    class MensajeSaliente {
-        <<Protocolo>>
-        +horno_id: u8
-        +tipo: TipoMensaje
-        +valor: f32
-    }
-
-    %% ============================================================
-    %% RELACIONES: Entity composicion con Components
-    %% ============================================================
-
-    Entity "1" --o "0..*" Horno : "puede tener"
-    Entity "1" --o "0..*" PIDState : "puede tener"
-    Entity "1" --o "0..*" HistorialTemperatura : "puede tener"
-    Entity "1" --o "0..1" Alarma : "puede tener"
-
-    %% RELACIONES: Systems acceden a Components via Query
-    SensorUpdater ..> Horno : "Query<mut Horno>"
-    PIDController ..> Horno : "Query<(mut Horno, mut PIDState)>"
-    PIDController ..> PIDState : "Query<(mut Horno, mut PIDState)>"
-    HistoryRecorder ..> HistorialTemperatura : "Query<mut HistorialTemperatura>"
-    AlarmaSystem ..> Horno : "Query<(Horno, mut Alarma)>"
-    AlarmaSystem ..> Alarma : "Query<(Horno, mut Alarma)>"
-
-    %% RELACIONES: Systems usan Resources
-    SerialReader ..> SerialConnection : "ResMut"
-    SerialReader ..> BufferSerial : "ResMut"
-    SensorUpdater ..> BufferSerial : "ResMut"
-    PWMSender ..> BufferSerial : "ResMut"
-    SerialWriter ..> SerialConnection : "ResMut"
-    SerialWriter ..> BufferSerial : "ResMut"
-
-    %% RELACIONES: Events emitidos y consumidos
-    SensorReader ..> LecturaTemperatura : "EventWriter"
-    HistoryRecorder ..> LecturaTemperatura : "EventReader"
-    AlarmaSystem ..> LecturaTemperatura : "EventReader"
-    PIDController ..> ComandoPWM : "EventWriter"
-    PWMSender ..> ComandoPWM : "EventReader"
-    HornoSpawner ..> HornoAgregado : "EventReader"
-    HornoDespawner ..> HornoRemovido : "EventReader"
-
-    %% RELACIONES: Buffer contiene mensajes del protocolo
-    BufferSerial "1" *-- "0..*" MensajeEntrante : "rx queue"
-    BufferSerial "1" *-- "0..*" MensajeSaliente : "tx queue"
-
-    %% RELACIONES: Protocolo sobre Serial
-    SerialConnection ..> MensajeSaliente : "envía por serial"
-    SerialConnection ..> MensajeEntrante : "recibe por serial"
 ```
 
-## Notación usada
+## Resumen de componentes reales (Mayo 2026)
 
-| Estereotipo | Significado | Equivalente OOP |
+### Protocol — Crate compartido
+
+| Tipo | Elementos | Tests |
 |---|---|---|
-| `<<Entity>>` | Solo un ID, sin datos ni comportamiento | Referencia/identificador de objeto |
-| `<<Component>>` | Datos puros que se asocian a una Entity | Atributos de un objeto (sin métodos) |
-| `<<System>>` | Función que opera sobre Components | Service / Use Case / método de negocio |
-| `<<Resource>>` | Singleton global de la aplicación | Singleton / Service Locator |
-| `<<Event>>` | Mensaje broadcast entre Systems | Patrón Observer / EventBus |
-| `<<Protocolo>>` | Tipos compartidos para comunicación serial | DTO (Data Transfer Object) |
+| `EventEnvelope` | Envelope con metadatos + `Message` | Serde roundtrip |
+| `Message` | 9 variantes (4 commands + 5 events) | Discriminante JSON |
+| Payloads | 9 structs tipados | Serde roundtrip |
 
-## Relaciones
+### rpi-controller — Bevy ECS headless (9 componentes / 7 resources / 3 schedules)
 
-| Notación | Significado |
+| Schedule | Systems |
 |---|---|
-| `--o` (agregación) | Una Entity puede tener 0 o N Components (composición flexible) |
-| `*--` (composición) | BufferSerial contiene Mensajes (vida compartida) |
-| `..>` (dependencia) | Un System depende de un Component/Resource/Event |
+| `Startup` | `spawn_simulated_ovens` |
+| `Update` | `ingest_commands`, `emit_protocol_responses` |
+| `FixedUpdate` (50ms) | `simulate_thermal_drift`, `check_hysteresis`, `check_faults`, `publish_status` |
+
+| Resource | Propósito |
+|---|---|
+| `InboundProtocolQueue` | Cola de mensajes entrantes desde PC |
+| `OutboundProtocolQueue` | Cola de mensajes salientes hacia PC |
+| `OvenIndex` | Mapa `oven_id → Entity` |
+| `SimulationConfig` | Constantes de drift térmico e histéresis |
+| `ControllerConfig` | Intervalos de tick y publicación |
+| `TestRng` | RNG determinista para tests |
+| `EmergencyStopActive` | Flag de parada de emergencia |
+| `SimulateOvenCount` | Cantidad de hornos simulados al inicio |
+| `LastStatusPublishTime` | Timestamp de última publicación de estado |
+
+### pc-app — Bevy ECS headless (11 componentes / 4 resources / 4 funciones de comando)
+
+| Schedule | Systems |
+|---|---|
+| `Update` | `ingest_inbound_protocol` |
+| `FixedUpdate` (50ms) | `apply_oven_detected`, `apply_oven_status_updated`, `apply_fault_raised`, `record_command_result` |
+
+| Resource | Propósito |
+|---|---|
+| `InboundProtocolQueue` | Cola de mensajes entrantes desde RPi |
+| `OutboundProtocolQueue` | Cola de mensajes salientes hacia RPi |
+| `OvenIndex` | Mapa `oven_id → Entity` |
+| `GlobalFault` | Falla técnica global (sin oven_id) |
+
+| Función standalone | Comando que genera |
+|---|---|
+| `author_set_target_temperature_command` | `SetTargetTemperature` |
+| `author_set_oven_enabled_command` | `SetOvenEnabled` |
+| `author_request_status_command` | `RequestStatus` |
+| `author_emergency_stop_command` | `EmergencyStop` |
+
+### Transporte (pendiente)
+
+| Dirección | Estado | Medio |
+|---|---|---|
+| PC → RPi | ❌ Pendiente | Queue → serial/TCP/local → Queue |
+| RPi → PC | ❌ Pendiente | Queue → serial/TCP/local → Queue |
+
+## Archivos de la implementación real
+
+| Crate | Archivos clave |
+|---|---|
+| `protocol/` | `src/message.rs`, `src/payloads.rs`, `src/types.rs`, `src/event_envelope.rs` |
+| `rpi-controller/` | `src/components.rs`, `src/resources.rs`, `src/events.rs`, `src/systems/*.rs`, `src/plugins/oven_controller.rs`, `src/bevy_app.rs` |
+| `pc-app/` | `src/components.rs`, `src/resources.rs`, `src/events.rs`, `src/systems/*.rs`, `src/plugins/pc_app.rs` |

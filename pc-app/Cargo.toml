@@ -6,5 +6,3 @@ edition = "2024"
 [dependencies]
 protocol = { path = "../protocol" }
 bevy = "0.15"
-serialport = "4"
-tokio = { version = "1", features = ["full"] }
