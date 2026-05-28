@@ -98,6 +98,8 @@ Cada proceso mantiene sus colas ECS internas. El crate `transport` las conecta c
 | `docs/diagrama-flujo-protocolo.md` | Flujo de mensajes PC ↔ RPi | ✅ Actualizado |
 | `docs/diagrama-clases.md` | Diagrama de componentes reales | ✅ Actualizado |
 | `docs/flujo-datos-transporte.md` | Flujo completo de datos del transporte TCP | ✅ Creado |
+| `docs/arquitectura-explicada.md` | Explicación docente de arquitectura PC/RPi/Bevy/Tokio | ✅ Creado |
+| `docs/bevy-en-pc-y-raspberry.md` | Explicación específica de cómo se aplica Bevy ECS en ambos lados | ✅ Creado |
 | `docs/adr/001-protocolo-eventos-rust-enum.md` | ADR: enum + serde | ✅ Sí |
 | `docs/adr/002-hysteresis-control-termico.md` | ADR: histéresis 5°C | ✅ Sí |
 | `docs/adr/003-tokio-como-adaptador-transporte-bevy.md` | ADR: Tokio como adaptador TCP de Bevy | ✅ Sí |
