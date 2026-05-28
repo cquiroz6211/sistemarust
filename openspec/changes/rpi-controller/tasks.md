@@ -31,8 +31,8 @@ Implementation of the `rpi-controller` crate — an async Tokio headless process
 **Files**: `rpi-controller/Cargo.toml`
 **Changed lines**: ~4
 **Acceptance criteria**:
-- [ ] `cargo build` compiles cleanly
-- [ ] `rand` and `async-trait` are available
+- [x] `cargo build` compiles cleanly
+- [x] `rand` and `async-trait` are available
 
 ---
 
@@ -42,10 +42,10 @@ Implementation of the `rpi-controller` crate — an async Tokio headless process
 **Files**: `rpi-controller/src/state.rs` (new)
 **Changed lines**: ~65
 **Acceptance criteria**:
-- [ ] `Oven` has all fields from design.md interface contract
-- [ ] `OvenStore` is `Arc<RwLock<HashMap<String, Oven>>>`
-- [ ] `Default` impl produces a safe disabled oven at room temp
-- [ ] Unit tests for `OvenStore` insert/remove/get
+- [x] `Oven` has all fields from design.md interface contract
+- [x] `OvenStore` is `Arc<RwLock<HashMap<String, Oven>>>`
+- [x] `Default` impl produces a safe disabled oven at room temp
+- [x] Unit tests for `OvenStore` insert/remove/get
 
 ---
 
@@ -55,10 +55,10 @@ Implementation of the `rpi-controller` crate — an async Tokio headless process
 **Files**: `rpi-controller/src/validation.rs` (new)
 **Changed lines**: ~70
 **Acceptance criteria**:
-- [ ] All scenarios from `CMD-VAL-*` spec are covered by tests
-- [ ] `validate_set_target` rejects negative and `> max_celsius`
-- [ ] `validate_set_enabled` returns `Ok(())` for non-faulted ovens
-- [ ] Emergency-stop guard function `is_emergency_stop_active()` exists for handlers
+- [x] All scenarios from `CMD-VAL-*` spec are covered by tests
+- [x] `validate_set_target` rejects negative and `> max_celsius`
+- [x] `validate_set_enabled` returns `Ok(())` for non-faulted ovens
+- [x] Emergency-stop guard function `is_emergency_stop_active()` exists for handlers
 
 ---
 
@@ -74,9 +74,9 @@ Rules:
 **Files**: `rpi-controller/src/control.rs` (new)
 **Changed lines**: ~45
 **Acceptance criteria**:
-- [ ] All hysteresis scenarios from `HEAT-CTRL-*` spec pass
-- [ ] Boundary tests: exactly `target - 5.0`, exactly `target`, `target - 4.9`
-- [ ] Unit tests for all 3 rules with explicit comments matching ADR 002 table
+- [x] All hysteresis scenarios from `HEAT-CTRL-*` spec pass
+- [x] Boundary tests: exactly `target - 5.0`, exactly `target`, `target - 4.9`
+- [x] Unit tests for all 3 rules with explicit comments matching ADR 002 table
 
 ---
 
@@ -86,10 +86,10 @@ Rules:
 **Files**: `rpi-controller/src/simulation.rs` (new)
 **Changed lines**: ~55
 **Acceptance criteria**:
-- [ ] `TEMP-SIM-*` scenarios from spec are covered
-- [ ] Temperature never falls below `ROOM_TEMP`
-- [ ] Temperature exceeding `max_celsius` sets `state = Faulted`
-- [ ] Tests use deterministic noise (seeded RNG or fixed delta)
+- [x] `TEMP-SIM-*` scenarios from spec are covered
+- [x] Temperature never falls below `ROOM_TEMP`
+- [x] Temperature exceeding `max_celsius` sets `state = Faulted`
+- [x] Tests use deterministic noise (seeded RNG or fixed delta)
 
 ---
 
@@ -101,9 +101,9 @@ Rules:
 **Files**: `rpi-controller/src/mock_transport.rs` (new)
 **Changed lines**: ~50
 **Acceptance criteria**:
-- [ ] `Transport: Send + Sync` (required for `Arc<dyn Transport>`)
-- [ ] `MockTransport` can be created with `channel()` pair
-- [ ] Unit tests for `MockTransport` send/receive round-trip
+- [x] `Transport: Send + Sync` (required for `Arc<dyn Transport>`)
+- [x] `MockTransport` can be created with `channel()` pair
+- [x] Unit tests for `MockTransport` send/receive round-trip
 
 ---
 
@@ -113,13 +113,13 @@ Rules:
 **Files**: `rpi-controller/src/handlers.rs` (new)
 **Changed lines**: ~150
 **Acceptance criteria**:
-- [ ] `SetTargetTemperature` → `CommandAccepted` or `CommandRejected`
-- [ ] `SetOvenEnabled` → `CommandAccepted` or `CommandRejected`
-- [ ] `EmergencyStop` → disables all ovens, sets `EmergencyStopped`, returns `OvenStatusUpdated` per oven
-- [ ] `RequestStatus` → returns `OvenStatusUpdated` per oven (or single)
-- [ ] All handlers respect emergency-stop guard (reject non-emergency commands)
-- [ ] Unit tests with in-memory `OvenStore` for each handler
-- [ ] Handler tests cover both happy path and rejection cases
+- [x] `SetTargetTemperature` → `CommandAccepted` or `CommandRejected`
+- [x] `SetOvenEnabled` → `CommandAccepted` or `CommandRejected`
+- [x] `EmergencyStop` → disables all ovens, sets `EmergencyStopped`, returns `OvenStatusUpdated` per oven
+- [x] `RequestStatus` → returns `OvenStatusUpdated` per oven (or single)
+- [x] All handlers respect emergency-stop guard (reject non-emergency commands)
+- [x] Unit tests with in-memory `OvenStore` for each handler
+- [x] Handler tests cover both happy path and rejection cases
 
 ---
 
@@ -133,11 +133,11 @@ Rules:
 **Files**: `rpi-controller/src/app.rs` (new)
 **Changed lines**: ~110
 **Acceptance criteria**:
-- [ ] Both branches of `select!` are wired
-- [ ] Temperature ticker runs every 2 seconds
-- [ ] Safety fault detection emits `FaultRaised` then sets oven to `Faulted`
-- [ ] `App::new(...)` accepts `impl Transport + Send + Sync + 'static`
-- [ ] `App::run()` returns `Result<()>` and handles shutdown gracefully
+- [x] Both branches of `select!` are wired
+- [x] Temperature ticker runs every 2 seconds
+- [x] Safety fault detection emits `FaultRaised` then sets oven to `Faulted`
+- [x] `App::new(...)` accepts `impl Transport + Send + Sync + 'static`
+- [x] `App::run()` returns `Result<()>` and handles shutdown gracefully
 
 ---
 
@@ -147,10 +147,10 @@ Rules:
 **Files**: `rpi-controller/src/main.rs`
 **Changed lines**: ~30
 **Acceptance criteria**:
-- [ ] `--simulate N` creates N `Oven` entries and emits `OvenDetected` for each
-- [ ] Without `--simulate`, no ovens exist at startup
-- [ ] `cargo run -- --simulate 2` starts with 2 simulated ovens
-- [ ] Runtime is single-threaded (`#[tokio::main(flavor = "single_threaded")]`)
+- [x] `--simulate N` creates N `Oven` entries and emits `OvenDetected` for each
+- [x] Without `--simulate`, no ovens exist at startup
+- [x] `cargo run -- --simulate 2` starts with 2 simulated ovens
+- [x] Runtime is single-threaded (`#[tokio::main(flavor = "current_thread")]`) (NOTE: renamed from `single_threaded`)
 
 ---
 
@@ -162,7 +162,7 @@ Rules:
 **Files**: `rpi-controller/src/validation.rs`
 **Changed lines**: ~50 (tests)
 **Acceptance criteria**:
-- [ ] Tests for: oven not found, invalid temp (negative), invalid temp (> max), emergency stop active
+- [x] Tests for: oven not found, invalid temp (negative), invalid temp (> max), emergency stop active
 
 ---
 
@@ -172,10 +172,10 @@ Rules:
 **Files**: `rpi-controller/src/control.rs`
 **Changed lines**: ~50 (tests)
 **Acceptance criteria**:
-- [ ] Test exactly `target - 5.0` → `true`
-- [ ] Test exactly `target` → `false`
-- [ ] Test in-band `target - 4.0` maintains previous state
-- [ ] Test `enabled = false` → always `false`
+- [x] Test exactly `target - 5.0` → `true`
+- [x] Test exactly `target` → `false`
+- [x] Test in-band `target - 4.0` maintains previous state
+- [x] Test `enabled = false` → always `false`
 
 ---
 
@@ -184,9 +184,9 @@ Rules:
 **Files**: `rpi-controller/src/simulation.rs`
 **Changed lines**: ~50 (tests)
 **Acceptance criteria**:
-- [ ] Heating raises temperature
-- [ ] Cooling never goes below `ROOM_TEMP` (20.0)
-- [ ] Exceeding `max_celsius` sets state to `Faulted`
+- [x] Heating raises temperature
+- [x] Cooling never goes below `ROOM_TEMP` (20.0)
+- [x] Exceeding `max_celsius` sets state to `Faulted`
 
 ---
 
@@ -196,9 +196,9 @@ Rules:
 **Files**: `rpi-controller/tests/integration.rs` (new)
 **Changed lines**: ~100
 **Acceptance criteria**:
-- [ ] `MockTransport` round-trips `EventEnvelope` correctly
-- [ ] Full scenario: create oven → set target → verify `heating` becomes true after tick
-- [ ] Emergency stop test: estop → verify all subsequent commands rejected
+- [x] `MockTransport` round-trips `EventEnvelope` correctly
+- [x] Full scenario: create oven → set target → verify `heating` becomes true after tick
+- [x] Emergency stop test: estop → verify all subsequent commands rejected
 
 ---
 
@@ -239,11 +239,11 @@ T-13  integration tests
 
 ## Acceptance Criteria Summary
 
-- [ ] All 13 tasks completed
-- [ ] `cargo test` passes (unit + integration)
-- [ ] `cargo build` succeeds with mock transport only
-- [ ] All `spec.md` requirements (`OVEN-SIM-*`, `CMD-VAL-*`, `HEAT-CTRL-*`, `TEMP-SIM-*`, `STATUS-*`, `FAULT-*`, `ESTOP-*`) are covered by passing tests
-- [ ] `app.rs` `select!` loop handles both event sources concurrently
-- [ ] Hysteresis implementation matches ADR 002 exactly
+- [x] All 13 tasks completed
+- [x] `cargo test` passes (unit + integration)
+- [x] `cargo build` succeeds with mock transport only
+- [x] All `spec.md` requirements (`OVEN-SIM-*`, `CMD-VAL-*`, `HEAT-CTRL-*`, `TEMP-SIM-*`, `STATUS-*`, `FAULT-*`, `ESTOP-*`) are covered by passing tests
+- [x] `app.rs` `select!` loop handles both event sources concurrently
+- [x] Hysteresis implementation matches ADR 002 exactly
 
 (End of file — total lines: ~829)

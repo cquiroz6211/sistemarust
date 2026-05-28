@@ -93,7 +93,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="6OElHZNM1txPZ6R8-8wP" name="system B">
-    <mxGraphModel dx="995" dy="649" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="878" dy="573" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -106,9 +106,6 @@
         <mxCell id="ECX6BbMKMeNbEHXicK2z-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="" vertex="1">
           <mxGeometry height="60" width="120" x="670" y="210" as="geometry" />
         </mxCell>
-        <mxCell id="ECX6BbMKMeNbEHXicK2z-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="El&amp;nbsp; Raspebbry se encarga de leer y escribir sobre GPIO.&lt;div&gt;¿como se debe consumir los datos que son constantes? no van a exisitr eventos todo momento pero aun es necesario revisar el estado de los system 1,2,3. ¿mediante pool?&amp;nbsp;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="190" width="163" x="387" y="60" as="geometry" />
-        </mxCell>
         <mxCell id="1DwMgAGtdYb-WI8dfQYf-1" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="" vertex="1">
           <mxGeometry height="80" width="80" x="160" y="490" as="geometry" />
         </mxCell>
@@ -116,10 +113,250 @@
     </mxGraphModel>
   </diagram>
   <diagram id="yHEwaxT67gGBuGxFMTbV" name="protocol">
-    <mxGraphModel dx="746" dy="487" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1506" dy="751" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-1" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="PC / Bevy" vertex="1">
+          <mxGeometry height="1390" width="150" x="20" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-2" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="Raspberry Pi" vertex="1">
+          <mxGeometry height="1390" width="150" x="1010" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-3" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="OvenDetected { oven_id, sensor_ref, output_ref, max_celsius }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="176" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-4" parent="oGJfy6-r8FiSStnL6vm6-3" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-5" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-1" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-2" value="SetTargetTemperature { oven_id, target_celsius: 150.0 }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="228" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-6" parent="oGJfy6-r8FiSStnL6vm6-5" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="2" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="-489" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-7" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="CommandAccepted { accepted_type: SetTargetTemperature, oven_id, message }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-8" parent="oGJfy6-r8FiSStnL6vm6-7" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="3" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-9" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-1" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-2" value="SetOvenEnabled { oven_id, enabled: true }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="332" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-10" parent="oGJfy6-r8FiSStnL6vm6-9" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="4" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="-489" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-11" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="CommandAccepted { accepted_type: SetOvenEnabled, oven_id, message }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="384" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-12" parent="oGJfy6-r8FiSStnL6vm6-11" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="5" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-13" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="OvenStatusUpdated { oven_id, current_celsius, target_celsius, enabled, heating, state: &quot;idle&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="436" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-14" parent="oGJfy6-r8FiSStnL6vm6-13" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="6" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-15" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-1" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-2" value="SetTargetTemperature { oven_id, target_celsius: 180.0 }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="537" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-16" parent="oGJfy6-r8FiSStnL6vm6-15" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="7" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="-489" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-17" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="CommandAccepted { accepted_type: SetTargetTemperature, oven_id, message }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="589" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-18" parent="oGJfy6-r8FiSStnL6vm6-17" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="8" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-19" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="OvenStatusUpdated { oven_id, target_celsius: 180.0, state: &quot;heating&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="641" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-20" parent="oGJfy6-r8FiSStnL6vm6-19" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="9" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-21" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-1" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-2" value="RequestStatus { oven_id, scope: &quot;all&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="742" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-22" parent="oGJfy6-r8FiSStnL6vm6-21" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="10" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="-489" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-23" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="OvenStatusUpdated { ... }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="794" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-24" parent="oGJfy6-r8FiSStnL6vm6-23" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="11" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-25" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-1" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-2" value="SetTargetTemperature { oven_id: &quot;Horno-99&quot;, target_celsius: 500.0 }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="895" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-26" parent="oGJfy6-r8FiSStnL6vm6-25" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="12" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="-489" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-27" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="CommandRejected { rejected_type: SetTargetTemperature, oven_id: &quot;Horno-99&quot;, reason: &quot;oven_not_found&quot;, message }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="947" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-28" parent="oGJfy6-r8FiSStnL6vm6-27" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="13" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-29" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-1" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-2" value="EmergencyStop { reason: &quot;Sobrecalentamiento detectado por operador&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="1048" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-30" parent="oGJfy6-r8FiSStnL6vm6-29" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="14" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="-489" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-31" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="CommandAccepted { accepted_type: EmergencyStop, message }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="1100" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-32" parent="oGJfy6-r8FiSStnL6vm6-31" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="15" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-33" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="OvenStatusUpdated { oven_id: &quot;Horno-01&quot;, state: &quot;emergency_stopped&quot;, enabled: false, heating: false }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="1152" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-34" parent="oGJfy6-r8FiSStnL6vm6-33" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="16" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-35" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="FaultRaised { oven_id: &quot;Horno-01&quot;, fault_code: &quot;sensor_unavailable&quot;, severity: &quot;high&quot;, message: &quot;Sensor TEMP_A1 no responde&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="1253" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-36" parent="oGJfy6-r8FiSStnL6vm6-35" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="17" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-37" edge="1" parent="1" source="oGJfy6-r8FiSStnL6vm6-2" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="oGJfy6-r8FiSStnL6vm6-1" value="OvenStatusUpdated { oven_id: &quot;Horno-01&quot;, state: &quot;faulted&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="588" y="1305" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-38" parent="oGJfy6-r8FiSStnL6vm6-37" style="ellipse;aspect=fixed;fillColor=#000000;align=center;fontColor=#FFFFFF;" value="18" vertex="1">
+          <mxGeometry height="14" relative="1" width="14" as="geometry">
+            <mxPoint x="475" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-39" parent="1" style="fillColor=#ffe6cc;strokeColor=#d79b00;" value="1. La Raspberry detecta un horno nuevo" vertex="1">
+          <mxGeometry height="49" width="1013" x="70" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-40" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;fontColor=light-dark(#333333,#cccccc);" value="2. Cambiar temperatura deseada" vertex="1">
+          <mxGeometry height="49" width="1013" x="70" y="456" as="geometry" />
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-41" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;fontColor=light-dark(#333333,#cccccc);" value="3. Solicitar estado (sincronización)" vertex="1">
+          <mxGeometry height="49" width="1013" x="70" y="661" as="geometry" />
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-42" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;fontColor=light-dark(#333333,#cccccc);" value="4. Comando inválido (rechazo)" vertex="1">
+          <mxGeometry height="49" width="1013" x="70" y="814" as="geometry" />
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-43" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;fontColor=light-dark(#333333,#cccccc);" value="5. Parada de emergencia" vertex="1">
+          <mxGeometry height="49" width="1013" x="70" y="967" as="geometry" />
+        </mxCell>
+        <mxCell id="oGJfy6-r8FiSStnL6vm6-44" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;fontColor=light-dark(#333333,#cccccc);" value="6. Falla técnica detectada por Raspberry" vertex="1">
+          <mxGeometry height="49" width="1013" x="70" y="1172" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
