@@ -222,18 +222,29 @@ Cada sistema debe tener una responsabilidad clara.
 | Control remoto desde internet | Agrega seguridad y complejidad fuera del alcance inicial. |
 | Hilo por horno como arquitectura central | ECS debe modelar hornos como entidades, no como threads. |
 
-## Camino de desarrollo recomendado
+## Camino de desarrollo — estado real (Mayo 2026)
 
-1. Consolidar documentación de arquitectura y eventos.
-2. Corregir el workspace Rust mínimo.
-3. Crear el módulo compartido de protocolo.
-4. Validar serialización y lectura de eventos.
-5. Crear una Raspberry simulada sin GPIO real.
-6. Crear flujo mínimo PC ↔ Raspberry.
-7. Agregar ECS en el controlador.
-8. Agregar simulación de sensores y salidas.
-9. Integrar GPIO real.
-10. Mejorar la UI Bevy.
+### Lo completado
+
+| Paso | Estado | Change SDD |
+|---|---|---|
+| 1. Documentación de arquitectura y eventos | ✅ Completado | `docs/events.md`, ADRs, panorama |
+| 2. Workspace Rust mínimo | ✅ Completado | Skeleton inicial |
+| 3. Módulo compartido de protocolo | ✅ Completado | `protocol` — 85 tests |
+| 4. Serialización y lectura de eventos | ✅ Completado | Serde roundtrip, discriminante JSON |
+| 5. Raspberry headless con Bevy ECS + simulación | ✅ Completado | `rpi-controller-bevy-headless` — 59 tests |
+| 6. PC-app como read model + command author | ✅ Completado | `pc-app` — 23 tests |
+| 7. ECS en el controlador | ✅ Completado | Replace Tokio-first por Bevy ECS |
+| 8. Simulación de sensores y salidas | ✅ Completado | Drift térmico, histéresis 5°C, noise |
+
+### Lo pendiente
+
+| Paso | Prioridad | Próximo cambio |
+|---|---|---|
+| 9. Transporte PC ↔ Raspberry | 🔜 Próximo | `pc-rpi-transport-link` |
+| 10. UI Bevy en PC | Siguiente | `pc-app-ui` |
+| 11. Integración GPIO real | Futuro | Necesita transporte primero |
+| 12. Demo observable para estudiantes | En paralelo | Demo runner o logging mode |
 
 ## Primera victoria técnica
 
@@ -249,6 +260,18 @@ La primera victoria es demostrar este flujo completo:
 
 Si eso funciona, la arquitectura está viva.
 
+## Nota sobre la primera victoria técnica
+
+La primera victoria planteada originalmente era:
+
+> 1. PC pide cambiar temperatura.
+> 2. Raspberry acepta el comando.
+> 3. Raspberry actualiza el estado interno.
+> 4. Raspberry reporta el estado actualizado.
+> 5. PC muestra el cambio.
+
+**Esto todavía no es posible.** Cada lado funciona y se testea por separado, pero **falta el transporte** que conecte PC y Raspberry. Ese es el próximo cambio planeado (`pc-rpi-transport-link`).
+
 ## Criterios de aceptación de este panorama
 
 - Se entiende qué hace el PC.
@@ -257,9 +280,15 @@ Si eso funciona, la arquitectura está viva.
 - Se entiende por qué usamos ECS.
 - Se entiende por qué no arrancamos por UI o GPIO.
 - Se entiende cuál es el primer objetivo técnico.
+- Se entiende QUÉ está implementado y QUÉ falta.
 
 ## Documentos relacionados
 
 - `docs/prd-sistema-control-hornos.md`: PRD del sistema.
-- `docs/events.md`: contrato inicial de eventos.
-- `docs/diagrama-clases.md`: diagrama ECS anterior, útil como base histórica pero no como arquitectura final completa.
+- `docs/prd-rpi-controller-bevy-headless.md`: PRD del controller Bevy headless.
+- `docs/events.md`: contrato completo de eventos.
+- `docs/diagrama-clases.md`: diagrama ECS actualizado con componentes reales.
+- `docs/diagrama-flujo-protocolo.md`: flujo del protocolo con estado de implementación.
+- `docs/adr/001-protocolo-eventos-rust-enum.md`: decisión de usar Enum con serde.
+- `docs/adr/002-hysteresis-control-termico.md`: decisión de histéresis 5°C.
+- `docs/estado-actual.md`: trazabilidad consolidada del proyecto.
