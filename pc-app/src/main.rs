@@ -15,7 +15,7 @@ use std::net::SocketAddr;
 use std::time::Duration;
 
 use bevy::app::ScheduleRunnerPlugin;
-use bevy::prelude::{App, IntoSystemConfigs, Local, MinimalPlugins, PluginGroup, Res, ResMut, Update};
+use bevy::prelude::{App, DefaultPlugins, IntoSystemConfigs, Local, MinimalPlugins, PluginGroup, Res, ResMut, Update};
 
 use pc_app::resources::{InboundProtocolQueue, OvenIndex, OutboundProtocolQueue};
 use pc_app::systems::commands::{
@@ -27,6 +27,8 @@ use transport::{InboundReceiver, OutboundSender, TransportConfig, TransportPlugi
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+
+    let headless = args.iter().any(|a| a == "--headless");
 
     let connect_addr: Option<SocketAddr> = if let Some(idx) =
         args.iter().position(|a| a == "--connect")
@@ -40,9 +42,15 @@ fn main() {
     let demo_mode = args.iter().any(|a| a == "--demo");
 
     let mut app = App::new();
-    app.add_plugins(MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(
-        Duration::from_millis(50),
-    )));
+
+    if headless {
+        app.add_plugins(MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(
+            Duration::from_millis(50),
+        )));
+    } else {
+        app.add_plugins(DefaultPlugins);
+    }
+
     app.add_plugins(PcAppPlugin);
 
     if let Some(addr) = connect_addr {
@@ -61,6 +69,12 @@ fn main() {
             app.add_systems(Update, demo_system.before(bridge_outbound_to_transport));
             eprintln!("[DEMO] Demo mode active — will auto-send commands");
         }
+    }
+
+    // UI plugins — skipped in headless mode
+    if !headless {
+        app.add_plugins(bevy_egui::EguiPlugin);
+        app.add_plugins(pc_app::plugins::ui::UiPlugin);
     }
 
     app.run();

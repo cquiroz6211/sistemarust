@@ -3,3 +3,4 @@
 pub mod ingest;
 pub mod state;
 pub mod commands;
+pub mod ui;

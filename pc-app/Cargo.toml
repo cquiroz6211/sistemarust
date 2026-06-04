@@ -7,3 +7,4 @@ edition = "2024"
 protocol = { path = "../protocol" }
 bevy = "0.15"
 transport = { path = "../transport" }
+bevy_egui = "0.31"

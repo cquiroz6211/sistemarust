@@ -8,5 +8,6 @@ pub mod events;
 pub mod plugins;
 pub mod resources;
 pub mod systems;
+pub mod ui;
 
 pub use plugins::pc_app::PcAppPlugin;

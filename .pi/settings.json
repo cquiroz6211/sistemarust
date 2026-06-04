@@ -1,0 +1,82 @@
+{
+	"subagents": {
+		"agentOverrides": {
+			"sdd-init": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-explore": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-proposal": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-spec": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-design": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-tasks": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-apply": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-verify": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-sync": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-archive": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"context-builder": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"delegate": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"oracle": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"planner": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"researcher": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"reviewer": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"scout": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"sdd-onboard": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			},
+			"worker": {
+				"model": "nan/qwen3.6",
+				"thinking": "xhigh"
+			}
+		}
+	}
+}
