@@ -8,7 +8,7 @@
 
 use bevy::prelude::*;
 
-use crate::resources::{ConnectionState, EmergencyStopConfirm, EventLog, OvenEditStates, TemperatureValidation, UiIntent};
+use crate::resources::{BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, EventLog, OvenEditStates, TemperatureValidation, UiIntent};
 use crate::systems::ui::connection::connection_monitor;
 use crate::systems::ui::dispatch::ui_command_dispatch;
 use crate::systems::ui::log_capture::log_capture_events;
@@ -25,6 +25,8 @@ impl Plugin for UiPlugin {
         app.insert_resource(OvenEditStates::default());
         app.insert_resource(EmergencyStopConfirm::default());
         app.insert_resource(TemperatureValidation::default());
+        app.insert_resource(BulkSelection::default());
+        app.insert_resource(BulkValidation::default());
 
         // Startup: spawn camera for bevy_egui
         app.add_systems(Startup, spawn_ui_camera);

@@ -11,8 +11,8 @@ use bevy::prelude::{App, IntoSystemConfigs, MinimalPlugins, PluginGroup};
 
 use pc_app::plugins::pc_app::PcAppPlugin;
 use pc_app::resources::{
-    ConnectionState, EmergencyStopConfirm, EventLog, InboundProtocolQueue, OvenEditStates,
-    OutboundProtocolQueue, TemperatureValidation, UiIntent,
+    BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, EventLog,
+    InboundProtocolQueue, OvenEditStates, OutboundProtocolQueue, TemperatureValidation, UiIntent,
 };
 use pc_app::systems::ui::dispatch::ui_command_dispatch;
 use pc_app::systems::ui::log_capture::log_capture_events;
@@ -33,6 +33,8 @@ fn build_test_app() -> App {
     app.insert_resource(OvenEditStates::default());
     app.insert_resource(EmergencyStopConfirm::default());
     app.insert_resource(TemperatureValidation::default());
+    app.insert_resource(BulkSelection::default());
+    app.insert_resource(BulkValidation::default());
 
     // Register the data-flow systems (no render system)
     app.add_systems(

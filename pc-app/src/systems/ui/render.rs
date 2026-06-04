@@ -1,6 +1,6 @@
 //! Main UI render system.
 //!
-//! Renders the full UI layout: header, oven cards, and event log panel.
+//! Renders the full UI layout: header, bulk operations panel, oven cards, and event log panel.
 
 use bevy::prelude::{Query, Res, ResMut};
 use bevy_egui::{egui, EguiContexts};
@@ -9,9 +9,12 @@ use crate::components::{
     CurrentTemperature, Enabled, FaultState, Heating, MaxTemperature, OvenId, OvenStatus,
     TargetTemperature,
 };
-use crate::resources::{ConnectionState, EmergencyStopConfirm, EventLog, OvenEditStates, OvenIndex, TemperatureValidation, UiIntent};
+use crate::resources::{
+    BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, EventLog, OvenEditStates,
+    OvenIndex, TemperatureValidation, UiIntent,
+};
 use crate::ui::log_panel::render_event_log;
-use crate::ui::panels::{render_empty_state, render_header, render_oven_card};
+use crate::ui::panels::{render_bulk_panel, render_empty_state, render_header, render_oven_card};
 
 pub fn ui_render(
     mut contexts: EguiContexts,
@@ -22,6 +25,8 @@ pub fn ui_render(
     mut edit_states: ResMut<OvenEditStates>,
     mut confirm: ResMut<EmergencyStopConfirm>,
     mut validation: ResMut<TemperatureValidation>,
+    mut bulk_selection: ResMut<BulkSelection>,
+    mut bulk_validation: ResMut<BulkValidation>,
     query: Query<(
         &OvenId,
         &CurrentTemperature,
@@ -52,6 +57,19 @@ pub fn ui_render(
         render_empty_state(ctx);
         return;
     }
+
+    // ── Bulk operations side panel (left) ─────────────────────────────────
+    egui::SidePanel::left("bulk_panel")
+        .default_width(240.0)
+        .show(ctx, |ui| {
+            render_bulk_panel(
+                ui,
+                oven_ids.len(),
+                &mut bulk_selection,
+                &mut bulk_validation,
+                &connection_state,
+            );
+        });
 
     // ── Central panel: oven cards ─────────────────────────────────────────
     egui::CentralPanel::default().show(ctx, |ui| {

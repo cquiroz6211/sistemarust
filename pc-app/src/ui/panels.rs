@@ -2,10 +2,10 @@
 
 use bevy_egui::egui;
 
-use crate::resources::{ConnectionState, EmergencyStopConfirm, OvenEditStates, TemperatureValidation, UiIntent};
+use crate::resources::{BulkAction, BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, OvenEditStates, TemperatureValidation, UiIntent};
 use crate::ui::controls::{render_enabled_toggle, render_status_request, render_temperature_editor};
 use crate::ui::styles::{
-    card_background, card_border, disconnected_color, format_temp, oven_state_color, oven_state_label,
+    bulk_header_color, card_background, card_border, disconnected_color, format_temp, oven_state_color, oven_state_label,
 };
 use crate::components::{
     CurrentTemperature, Enabled, FaultState, Heating, MaxTemperature, OvenId, OvenStatus,
@@ -272,4 +272,116 @@ pub fn render_empty_state(ctx: &egui::Context) {
             );
         });
     });
+}
+
+/// Renders the bulk operations side panel with range selection, temperature
+/// input, and batch action buttons.
+pub fn render_bulk_panel(
+    ui: &mut egui::Ui,
+    oven_count: usize,
+    selection: &mut BulkSelection,
+    validation: &mut BulkValidation,
+    connection_state: &ConnectionState,
+) {
+    ui.heading(
+        egui::RichText::new("Operaciones en Bloque")
+            .color(bulk_header_color())
+            .strong(),
+    );
+    ui.separator();
+
+    let disabled = *connection_state == ConnectionState::Disconnected;
+
+    // ── Select All checkbox ──
+    ui.checkbox(&mut selection.select_all, "Seleccionar todos");
+    ui.add_space(4.0);
+
+    // ── Range inputs (disabled when select_all is active) ──
+    let range_disabled = disabled || selection.select_all;
+    ui.label("Índice desde:");
+    ui.add_enabled(
+        !range_disabled,
+        egui::DragValue::new(&mut selection.from_index).speed(1.0),
+    );
+
+    ui.label("Índice hasta:");
+    ui.add_enabled(
+        !range_disabled,
+        egui::DragValue::new(&mut selection.to_index).speed(1.0),
+    );
+
+    ui.add_space(4.0);
+
+    // ── Temperature input ──
+    ui.label("Temperatura objetivo (°C):");
+    ui.add_enabled(
+        !disabled,
+        egui::DragValue::new(&mut selection.target_temp)
+            .speed(1.0)
+            .range(0.0..=300.0),
+    );
+
+    ui.add_space(4.0);
+    ui.separator();
+
+    // ── Selection summary ──
+    let summary = if selection.select_all {
+        format!("{} hornos detectados", oven_count)
+    } else {
+        format!("Rango {}-{}", selection.from_index, selection.to_index)
+    };
+    ui.label(
+        egui::RichText::new(&summary)
+            .small()
+            .color(egui::Color32::from_rgb(160, 160, 160)),
+    );
+
+    ui.add_space(4.0);
+
+    // ── Action buttons ──
+    let btn = |label: &str| {
+        egui::RichText::new(label).color(egui::Color32::WHITE)
+    };
+
+    if ui
+        .add_enabled(!disabled, egui::Button::new(btn("Encender seleccionados")))
+        .clicked()
+    {
+        selection.action = BulkAction::Enable;
+    }
+    if ui
+        .add_enabled(!disabled, egui::Button::new(btn("Apagar seleccionados")))
+        .clicked()
+    {
+        selection.action = BulkAction::Disable;
+    }
+    if ui
+        .add_enabled(!disabled, egui::Button::new(btn("Aplicar temperatura")))
+        .clicked()
+    {
+        selection.action = BulkAction::ApplyTemperature;
+    }
+    if ui
+        .add_enabled(
+            !disabled,
+            egui::Button::new(btn("Encender + aplicar temp.")),
+        )
+        .clicked()
+    {
+        selection.action = BulkAction::EnableAndApplyTemperature;
+    }
+    if ui
+        .add_enabled(!disabled, egui::Button::new(btn("Solicitar estado")))
+        .clicked()
+    {
+        selection.action = BulkAction::RequestStatus;
+    }
+
+    // ── Validation errors ──
+    if !validation.errors.is_empty() {
+        ui.add_space(4.0);
+        for error in &validation.errors {
+            ui.colored_label(egui::Color32::from_rgb(220, 50, 50), error);
+        }
+    }
 }

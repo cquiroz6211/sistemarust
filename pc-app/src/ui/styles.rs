@@ -68,3 +68,20 @@ pub fn oven_state_color(state: &protocol::OvenState) -> Color32 {
         protocol::OvenState::EmergencyStopped => emergency_color(),
     }
 }
+
+// ── Bulk panel styles ────────────────────────────────────────────────────────
+
+/// Background color for the bulk operations side panel.
+pub fn bulk_panel_background() -> Color32 {
+    Color32::from_rgba_premultiplied(20, 20, 30, 220)
+}
+
+/// Header text color for the bulk operations panel.
+pub fn bulk_header_color() -> Color32 {
+    Color32::from_rgb(100, 180, 240)
+}
+
+/// Button accent color for bulk action buttons.
+pub fn bulk_button_color() -> Color32 {
+    Color32::from_rgb(60, 120, 200)
+}

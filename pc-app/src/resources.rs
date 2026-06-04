@@ -120,6 +120,42 @@ pub struct TemperatureValidation {
     pub errors: std::collections::HashMap<String, String>,
 }
 
+// ── Bulk operations resources ────────────────────────────────────────────────
+
+/// Action requested by the bulk operations panel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum BulkAction {
+    #[default]
+    None,
+    Enable,
+    Disable,
+    ApplyTemperature,
+    EnableAndApplyTemperature,
+    RequestStatus,
+}
+
+/// Selection of ovens for bulk operations.
+/// Processed by `ui_command_dispatch` on the next frame.
+#[derive(Debug, Clone, Resource, Default)]
+pub struct BulkSelection {
+    /// Minimum index of the range (inclusive).
+    pub from_index: u32,
+    /// Maximum index of the range (inclusive).
+    pub to_index: u32,
+    /// If true, select all detected ovens regardless of range.
+    pub select_all: bool,
+    /// Target temperature for bulk apply.
+    pub target_temp: f64,
+    /// Action to execute on selected ovens.
+    pub action: BulkAction,
+}
+
+/// Validation messages for the bulk operations panel.
+#[derive(Debug, Resource, Default)]
+pub struct BulkValidation {
+    pub errors: Vec<String>,
+}
+
 /// Per-oven local edit state for temperature adjustment.
 /// The operator edits a local value, then explicitly clicks "Apply" to send.
 #[derive(Debug, Clone, Resource, Default)]
@@ -160,4 +196,78 @@ impl OvenEditStates {
             entry.local_target = actual_target;
         }
     }
+}
+
+// ── Bulk operations helpers ──────────────────────────────────────────────────
+
+/// Extract the numeric suffix from an `oven_id` like `"oven-42"`.
+/// Returns `None` if the format does not match `"oven-N"`.
+pub fn parse_oven_index(oven_id: &str) -> Option<u32> {
+    oven_id
+        .strip_prefix("oven-")
+        .and_then(|s| s.trim().parse::<u32>().ok())
+}
+
+/// Resolve which oven IDs match the given bulk selection, sorted by numeric index.
+///
+/// - If `select_all` is true, returns all ovens sorted ascending by index.
+/// - Otherwise, filters by the `[from_index, to_index]` range.
+pub fn resolve_selected_ovens<'a>(
+    oven_index: &'a OvenIndex,
+    selection: &BulkSelection,
+) -> Vec<(&'a String, u32)> {
+    let mut candidates: Vec<_> = oven_index
+        .0
+        .keys()
+        .filter_map(|id| parse_oven_index(id).map(|idx| (id, idx)))
+        .collect();
+
+    if selection.select_all {
+        candidates.sort_by_key(|(_, idx)| *idx);
+        candidates
+    } else {
+        candidates
+            .into_iter()
+            .filter(|(_, idx)| *idx >= selection.from_index && *idx <= selection.to_index)
+            .collect()
+    }
+}
+
+/// Validate a bulk selection before dispatching commands.
+pub fn validate_bulk_selection(
+    selection: &BulkSelection,
+    oven_index: &OvenIndex,
+) -> Vec<String> {
+    let mut errors = Vec::new();
+
+    if selection.action == BulkAction::None {
+        return errors;
+    }
+
+    // Check at least one oven exists when select_all
+    if selection.select_all && oven_index.0.is_empty() {
+        errors.push("No hay hornos para seleccionar".into());
+        return errors;
+    }
+
+    if !selection.select_all {
+        if selection.from_index > selection.to_index {
+            errors.push("Rango inválido: from debe ser <= to".into());
+        }
+    }
+
+    // Temperature validation
+    if selection.action == BulkAction::ApplyTemperature
+        || selection.action == BulkAction::EnableAndApplyTemperature
+    {
+        if selection.target_temp < 0.0 {
+            errors.push("Temperatura debe ser >= 0".into());
+        }
+        // Fixed max of 300.0°C — RPi rejects out-of-range values anyway
+        if selection.target_temp > 300.0 {
+            errors.push("Temperatura excede límite (300.0 °C)".into());
+        }
+    }
+
+    errors
 }
