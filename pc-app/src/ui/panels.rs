@@ -2,10 +2,14 @@
 
 use bevy_egui::egui;
 
-use crate::resources::{BulkAction, BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, OvenEditStates, TemperatureValidation, UiIntent};
+use crate::resources::{
+    BulkAction, BulkSelection, BulkValidation, ConnectionState, EcsDemoMetrics,
+    EmergencyStopConfirm, OvenEditStates, TemperatureValidation, UiIntent,
+};
 use crate::ui::controls::{render_enabled_toggle, render_status_request, render_temperature_editor};
 use crate::ui::styles::{
-    bulk_header_color, card_background, card_border, disconnected_color, format_temp, oven_state_color, oven_state_label,
+    bulk_header_color, card_background, card_border, disconnected_color, format_temp,
+    oven_state_color, oven_state_label,
 };
 use crate::components::{
     CurrentTemperature, Enabled, FaultState, Heating, MaxTemperature, OvenId, OvenStatus,
@@ -384,4 +388,51 @@ pub fn render_bulk_panel(
             ui.colored_label(egui::Color32::from_rgb(220, 50, 50), error);
         }
     }
+}
+
+/// Renders a teaching-oriented ECS monitor without claiming scheduler internals.
+pub fn render_ecs_demo_monitor(ui: &mut egui::Ui, metrics: &EcsDemoMetrics) {
+    ui.separator();
+    ui.heading(
+        egui::RichText::new("ECS Demo Monitor")
+            .color(bulk_header_color())
+            .strong(),
+    );
+    ui.label(
+        egui::RichText::new("Systems process groups of oven entities each frame.")
+            .small()
+            .color(egui::Color32::from_rgb(160, 160, 160)),
+    );
+    ui.label(
+        egui::RichText::new("This panel shows app-level metrics, not Bevy scheduler threads.")
+            .small()
+            .color(egui::Color32::from_rgb(160, 160, 160)),
+    );
+    ui.add_space(6.0);
+
+    egui::Grid::new("ecs_demo_monitor_grid")
+        .num_columns(2)
+        .spacing([8.0, 4.0])
+        .show(ui, |ui| {
+            metric_row(ui, "Total ovens", metrics.total_ovens.to_string());
+            metric_row(ui, "Enabled", metrics.enabled_ovens.to_string());
+            metric_row(ui, "Heating", metrics.heating_ovens.to_string());
+            metric_row(ui, "Faulted", metrics.faulted_ovens.to_string());
+            metric_row(ui, "Last bulk op", metrics.last_bulk_operation.clone());
+            metric_row(ui, "Commands", metrics.last_commands_generated.to_string());
+            metric_row(ui, "Dispatch", format!("{} us", metrics.last_dispatch_micros));
+            metric_row(ui, "FPS", format!("{:.1}", metrics.fps));
+            metric_row(ui, "Frame time", format!("{:.2} ms", metrics.frame_time_ms));
+            metric_row(
+                ui,
+                "Logged events/sec",
+                format!("{:.1}", metrics.logged_events_per_second),
+            );
+        });
+}
+
+fn metric_row(ui: &mut egui::Ui, label: &str, value: String) {
+    ui.label(label);
+    ui.label(egui::RichText::new(value).strong());
+    ui.end_row();
 }

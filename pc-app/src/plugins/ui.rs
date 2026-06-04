@@ -3,15 +3,19 @@
 //! Schedule layout:
 //! - `Startup`: `spawn_ui_camera`
 //! - `Update`: `log_capture_events` (after `ingest_inbound_protocol`),
-//!             `ui_command_dispatch`, `connection_monitor`
+//!             `ui_command_dispatch`, `connection_monitor`, `update_ecs_demo_metrics`
 //! - `EguiPrimaryContextPass`: `ui_render`
 
 use bevy::prelude::*;
 
-use crate::resources::{BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, EventLog, OvenEditStates, TemperatureValidation, UiIntent};
+use crate::resources::{
+    BulkSelection, BulkValidation, ConnectionState, EcsDemoMetrics, EmergencyStopConfirm, EventLog,
+    OvenEditStates, TemperatureValidation, UiIntent,
+};
 use crate::systems::ui::connection::connection_monitor;
 use crate::systems::ui::dispatch::ui_command_dispatch;
 use crate::systems::ui::log_capture::log_capture_events;
+use crate::systems::ui::monitor::update_ecs_demo_metrics;
 use crate::systems::ui::render::ui_render;
 
 pub struct UiPlugin;
@@ -27,6 +31,7 @@ impl Plugin for UiPlugin {
         app.insert_resource(TemperatureValidation::default());
         app.insert_resource(BulkSelection::default());
         app.insert_resource(BulkValidation::default());
+        app.insert_resource(EcsDemoMetrics::default());
 
         // Startup: spawn camera for bevy_egui
         app.add_systems(Startup, spawn_ui_camera);
@@ -42,6 +47,12 @@ impl Plugin for UiPlugin {
 
         // Update: monitor connection state
         app.add_systems(Update, connection_monitor);
+
+        // Update: refresh the educational ECS monitor metrics (after bulk dispatch writes metrics)
+        app.add_systems(
+            Update,
+            update_ecs_demo_metrics.after(ui_command_dispatch),
+        );
 
         // Update: render UI (after egui BeginPass runs in PreUpdate)
         app.add_systems(Update, ui_render);

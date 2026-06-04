@@ -347,7 +347,15 @@ Los controles individuales por horno existentes NO deben modificarse en su compo
 
 
 
-### Requirement: Registro en event log
+### Requirement: ECS Demo Monitor panel
+        
+The system MUST render a pedagogical panel titled "ECS Demo Monitor" inside the left sidebar below bulk operations. The panel MUST display a 2-column egui grid with all `EcsDemoMetrics` fields as label-value rows (Total ovens, Enabled, Heating, Faulted, Last bulk op, Commands, Dispatch (us), FPS, Frame time (ms), Logged events/sec). The panel MUST include a pedagogical disclaimer stating these are app-level metrics, NOT Bevy scheduler internals.
+
+#### Scenario: Panel shows all metrics
+
+- GIVEN `EcsDemoMetrics` with non-zero values
+- WHEN the UI renders the left sidebar
+- THEN the grid shows rows for: Total ovens, Enabled, Heating, Faulted, Last bulk op, Commands, Dispatch (us), FPS, Frame time (ms), Logged events/sec
 
 Cada comando encolado por bulk operations se registra en el event log con prefijo "[BULK]" para distinguirlo de comandos individuales.
 

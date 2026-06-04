@@ -5,11 +5,13 @@
 //! operations across multiple ovens. Resets both resources after processing.
 
 use bevy::prelude::{Res, ResMut};
+use std::time::Instant;
 
 use protocol::RequestScope;
 
 use crate::resources::{
-    BulkAction, BulkSelection, BulkValidation, OutboundProtocolQueue, OvenIndex, UiIntent,
+    BulkAction, BulkSelection, BulkValidation, EcsDemoMetrics, OutboundProtocolQueue, OvenIndex,
+    UiIntent,
 };
 use crate::resources::{resolve_selected_ovens, validate_bulk_selection};
 use crate::systems::commands::{
@@ -21,6 +23,7 @@ pub fn ui_command_dispatch(
     mut intent: ResMut<UiIntent>,
     mut bulk_selection: ResMut<BulkSelection>,
     mut bulk_validation: ResMut<BulkValidation>,
+    mut metrics: ResMut<EcsDemoMetrics>,
     mut outbound: ResMut<OutboundProtocolQueue>,
     oven_index: Res<OvenIndex>,
 ) {
@@ -49,10 +52,16 @@ pub fn ui_command_dispatch(
 
     // ── Bulk command dispatch ─────────────────────────────────────────────
     if bulk_selection.action != BulkAction::None {
+        let dispatch_start = Instant::now();
+        let action = bulk_selection.action;
+
         // 1. Validate
         let errors = validate_bulk_selection(&bulk_selection, &oven_index);
         if !errors.is_empty() {
             bulk_validation.errors = errors;
+            metrics.last_bulk_operation = format!("{} (validation failed)", action.label());
+            metrics.last_commands_generated = 0;
+            metrics.last_dispatch_micros = dispatch_start.elapsed().as_micros();
             bulk_selection.action = BulkAction::None;
             return;
         }
@@ -63,13 +72,17 @@ pub fn ui_command_dispatch(
 
         if selected.is_empty() {
             bulk_validation.errors = vec!["No hay hornos en el rango seleccionado".into()];
+            metrics.last_bulk_operation = format!("{} (no matching ovens)", action.label());
+            metrics.last_commands_generated = 0;
+            metrics.last_dispatch_micros = dispatch_start.elapsed().as_micros();
             bulk_selection.action = BulkAction::None;
             return;
         }
 
         // 3. Dispatch commands per oven, sorted by index
+        let outbound_before = outbound.0.len();
         for (oven_id, _idx) in &selected {
-            match bulk_selection.action {
+            match action {
                 BulkAction::Enable => {
                     author_set_oven_enabled_command(oven_id.to_string(), true, &mut outbound);
                 }
@@ -101,6 +114,10 @@ pub fn ui_command_dispatch(
                 BulkAction::None => {}
             }
         }
+
+        metrics.last_bulk_operation = action.label().to_string();
+        metrics.last_commands_generated = outbound.0.len().saturating_sub(outbound_before);
+        metrics.last_dispatch_micros = dispatch_start.elapsed().as_micros();
 
         // 4. Reset selection action
         bulk_selection.action = BulkAction::None;

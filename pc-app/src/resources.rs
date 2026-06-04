@@ -156,6 +156,53 @@ pub struct BulkValidation {
     pub errors: Vec<String>,
 }
 
+/// Pedagogical metrics for demonstrating how Bevy ECS processes oven entities.
+#[derive(Debug, Clone, Resource)]
+pub struct EcsDemoMetrics {
+    pub total_ovens: usize,
+    pub enabled_ovens: usize,
+    pub heating_ovens: usize,
+    pub faulted_ovens: usize,
+    pub last_bulk_operation: String,
+    pub last_commands_generated: usize,
+    pub last_dispatch_micros: u128,
+    pub fps: f32,
+    pub frame_time_ms: f32,
+    pub logged_events_per_second: f32,
+    pub observed_log_entries: usize,
+}
+
+impl Default for EcsDemoMetrics {
+    fn default() -> Self {
+        Self {
+            total_ovens: 0,
+            enabled_ovens: 0,
+            heating_ovens: 0,
+            faulted_ovens: 0,
+            last_bulk_operation: "None yet".to_string(),
+            last_commands_generated: 0,
+            last_dispatch_micros: 0,
+            fps: 0.0,
+            frame_time_ms: 0.0,
+            logged_events_per_second: 0.0,
+            observed_log_entries: 0,
+        }
+    }
+}
+
+impl BulkAction {
+    pub fn label(&self) -> &'static str {
+        match self {
+            BulkAction::None => "None",
+            BulkAction::Enable => "Enable selected",
+            BulkAction::Disable => "Disable selected",
+            BulkAction::ApplyTemperature => "Apply temperature",
+            BulkAction::EnableAndApplyTemperature => "Enable and apply temperature",
+            BulkAction::RequestStatus => "Request status",
+        }
+    }
+}
+
 /// Per-oven local edit state for temperature adjustment.
 /// The operator edits a local value, then explicitly clicks "Apply" to send.
 #[derive(Debug, Clone, Resource, Default)]

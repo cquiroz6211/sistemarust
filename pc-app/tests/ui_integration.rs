@@ -11,11 +11,13 @@ use bevy::prelude::{App, IntoSystemConfigs, MinimalPlugins, PluginGroup};
 
 use pc_app::plugins::pc_app::PcAppPlugin;
 use pc_app::resources::{
-    BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, EventLog,
-    InboundProtocolQueue, OvenEditStates, OutboundProtocolQueue, TemperatureValidation, UiIntent,
+    BulkAction, BulkSelection, BulkValidation, ConnectionState, EcsDemoMetrics,
+    EmergencyStopConfirm, EventLog, InboundProtocolQueue, OvenEditStates, OutboundProtocolQueue,
+    TemperatureValidation, UiIntent,
 };
 use pc_app::systems::ui::dispatch::ui_command_dispatch;
 use pc_app::systems::ui::log_capture::log_capture_events;
+use pc_app::systems::ui::monitor::update_ecs_demo_metrics;
 use protocol::{
     EventEnvelope, Message, OvenDetectedPayload, OvenStatusUpdatedPayload, OvenState,
 };
@@ -35,6 +37,7 @@ fn build_test_app() -> App {
     app.insert_resource(TemperatureValidation::default());
     app.insert_resource(BulkSelection::default());
     app.insert_resource(BulkValidation::default());
+    app.insert_resource(EcsDemoMetrics::default());
 
     // Register the data-flow systems (no render system)
     app.add_systems(
@@ -42,6 +45,10 @@ fn build_test_app() -> App {
         log_capture_events.after(pc_app::systems::ingest::ingest_inbound_protocol),
     );
     app.add_systems(bevy::prelude::Update, ui_command_dispatch);
+    app.add_systems(
+        bevy::prelude::Update,
+        update_ecs_demo_metrics.after(ui_command_dispatch),
+    );
 
     app
 }
@@ -314,6 +321,57 @@ fn connection_state_default_is_disconnected() {
     let app = build_test_app();
     let state = app.world().resource::<ConnectionState>();
     assert_eq!(*state, ConnectionState::Disconnected);
+}
+
+// ── ECS demo monitor tests ──────────────────────────────────────────────────
+
+#[test]
+fn ecs_demo_metrics_count_oven_groups() {
+    let mut app = build_test_app();
+    spawn_oven(&mut app, "oven-1");
+    spawn_oven(&mut app, "oven-2");
+
+    push_envelope(
+        &mut app,
+        Message::OvenStatusUpdated(OvenStatusUpdatedPayload {
+            oven_id: "oven-1".into(),
+            current_celsius: 185.0,
+            target_celsius: 250.0,
+            enabled: true,
+            heating: true,
+            output_level: Some(75.0),
+            state: OvenState::Heating,
+        }),
+    );
+    tick(&mut app);
+    tick(&mut app);
+
+    let metrics = app.world().resource::<EcsDemoMetrics>();
+    assert_eq!(metrics.total_ovens, 2);
+    assert_eq!(metrics.enabled_ovens, 1);
+    assert_eq!(metrics.heating_ovens, 1);
+    assert_eq!(metrics.faulted_ovens, 0);
+}
+
+#[test]
+fn ecs_demo_metrics_record_bulk_dispatch() {
+    let mut app = build_test_app();
+    spawn_oven(&mut app, "oven-1");
+    spawn_oven(&mut app, "oven-2");
+
+    {
+        let mut selection = app.world_mut().resource_mut::<BulkSelection>();
+        selection.from_index = 1;
+        selection.to_index = 2;
+        selection.target_temp = 220.0;
+        selection.action = BulkAction::EnableAndApplyTemperature;
+    }
+
+    tick(&mut app);
+
+    let metrics = app.world().resource::<EcsDemoMetrics>();
+    assert_eq!(metrics.last_bulk_operation, "Enable and apply temperature");
+    assert_eq!(metrics.last_commands_generated, 4);
 }
 
 // ── Emergency Stop confirmation tests ──────────────────────────────────────

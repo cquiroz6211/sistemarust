@@ -10,17 +10,20 @@ use crate::components::{
     TargetTemperature,
 };
 use crate::resources::{
-    BulkSelection, BulkValidation, ConnectionState, EmergencyStopConfirm, EventLog, OvenEditStates,
-    OvenIndex, TemperatureValidation, UiIntent,
+    BulkSelection, BulkValidation, ConnectionState, EcsDemoMetrics, EmergencyStopConfirm, EventLog,
+    OvenEditStates, OvenIndex, TemperatureValidation, UiIntent,
 };
 use crate::ui::log_panel::render_event_log;
-use crate::ui::panels::{render_bulk_panel, render_empty_state, render_header, render_oven_card};
+use crate::ui::panels::{
+    render_bulk_panel, render_ecs_demo_monitor, render_empty_state, render_header, render_oven_card,
+};
 
 pub fn ui_render(
     mut contexts: EguiContexts,
     oven_index: Res<OvenIndex>,
     mut connection_state: ResMut<ConnectionState>,
     event_log: Res<EventLog>,
+    metrics: Res<EcsDemoMetrics>,
     mut intent: ResMut<UiIntent>,
     mut edit_states: ResMut<OvenEditStates>,
     mut confirm: ResMut<EmergencyStopConfirm>,
@@ -69,6 +72,8 @@ pub fn ui_render(
                 &mut bulk_validation,
                 &connection_state,
             );
+            ui.add_space(12.0);
+            render_ecs_demo_monitor(ui, &metrics);
         });
 
     // ── Central panel: oven cards ─────────────────────────────────────────
