@@ -1,4 +1,5 @@
 # Sistema de Control de Hornos
+https://youtu.be/gFh6XkVvCsA
 
 Proyecto Rust + Bevy para controlar hornos desde una aplicación de PC y una Raspberry Pi simulada. La PC muestra una UI de operación, mientras la Raspberry mantiene el estado de los hornos y responde por TCP.
 
